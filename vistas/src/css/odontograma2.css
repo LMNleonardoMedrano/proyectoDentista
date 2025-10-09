@@ -1,0 +1,267 @@
+/* ========================
+   Estilo base del diente
+   ======================== */
+.tooth {
+   width: 4rem;             /* antes era 2rem */
+  height: 3.5rem;            /* aumentamos proporcionalmente */
+  font-size: 0.85rem; 
+  font-weight: bold;
+  border-radius: 15%;
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  cursor: pointer;
+  transition: transform 0.2s ease-in-out;
+  border: 2px solid #d1d5db;
+  background-color: rgb(212, 247, 220);
+  color: #000000;
+}
+.tooth:hover {
+  transform: scale(1.05);
+  filter: brightness(1.08);
+}
+
+/* ========================
+   Estados visuales por diente
+   ======================== */
+.tooth-sano       { background-color: #dcfce7; border-color: #22c55e; color: #000000; }
+.tooth-caries     { background-color: #f87171; border-color: #ef4444; color: #ffffff; }
+.tooth-obturado   { background-color: #60a5fa; border-color: #3b82f6; color: #ffffff; }
+.tooth-corona     { background-color: #facc15; border-color: #eab308; color: #1f2937; }
+.tooth-extraido   { background-color: #a1a1aa; border-color: #71717a; color: #ffffff; }
+.tooth-endodoncia { background-color: #a855f7; border-color: #a855f7; color: #ffffff; }
+.tooth-implante   { background-color: #0ea5e9; border-color: #0ea5e9; color: #ffffff; }
+
+/* ========================
+   Botones de herramienta
+   ======================== */
+.status-btn {
+  cursor: pointer;
+  border: 2px solid #d1d5db;
+  padding: 0.6rem 0.75rem;
+  border-radius: 0.5rem;
+  font-size: 0.75rem;
+  font-weight: 500;
+  transition: transform 0.2s ease;
+  background-color: #ffffff;
+  color: #1f2937;
+}
+.status-btn:hover {
+  transform: scale(1.04);
+}
+.status-btn.ring-2 {
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.1);
+  font-weight: bold;
+}
+.status-btn:focus {
+  outline: none;
+  box-shadow: 0 0 0 3px rgba(80,200,120,0.3);
+}
+
+/* ========================
+   Leyenda horizontal (cinta)
+   ======================== */
+.leyenda-cinta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  align-items: center;
+  justify-content: center;
+}
+.leyenda-cinta .estado {
+  display: flex;
+  align-items: center;
+  font-size: 0.7rem;
+}
+.leyenda-cinta .estado .cuadro {
+  width: 0.6rem;
+  height: 0.6rem;
+  border-radius: 9999px;
+  border: 1px solid #aaa;
+  margin-right: 0.4rem;
+}
+.leyenda-cinta .cuadro.tooth-sano       { background-color: #4ade80; }
+.leyenda-cinta .cuadro.tooth-caries     { background-color: #f87171; }
+.leyenda-cinta .cuadro.tooth-obturado   { background-color: #60a5fa; }
+.leyenda-cinta .cuadro.tooth-corona     { background-color: #facc15; }
+.leyenda-cinta .cuadro.tooth-extraido   { background-color: #a1a1aa; }
+.leyenda-cinta .cuadro.tooth-endodoncia { background-color: #a855f7; }
+.leyenda-cinta .cuadro.tooth-implante   { background-color: #0ea5e9; }
+
+/* ========================
+   Odontograma visual
+   ======================== */
+#odontogramCanvas .grid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 3rem;
+  justify-items: center;
+  align-items: start;
+}
+
+#odontogramCanvas #quadrant1,
+#odontogramCanvas #quadrant2,
+#odontogramCanvas #quadrant3,
+#odontogramCanvas #quadrant4 {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+#odontogramCanvas h4 {
+  background-color: #f8f9fa;      /* fondo gris institucional */
+  padding: 1rem 2rem;             /* espacio interno horizontal/vertical */
+  border-radius: 1rem;            /* bordes suaves */
+  max-width: 700px;               /* ancho clínico máximo */
+  margin: auto;                   /* centrar en pantalla */
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05); /* sombra leve */
+
+}
+/* Contenedor principal en dos columnas (lado derecho / lado izquierdo) */
+.odontograma-layout {
+  display: flex;
+  justify-content: center;
+  gap: 3rem;
+}
+
+/* Cada columna institucional: Superior + Inferior apilados verticalmente */
+.odontograma-layout .columna {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 2rem;
+}
+
+/* Encabezado de cada cuadrante */
+.odontograma-layout h4 {
+  text-align: center;
+  font-size: 0.85rem;
+  font-weight: 600;
+  margin-bottom: 0.5rem;
+}
+
+/* Dientes alineados horizontalmente en cada cuadrante */
+.odontograma-layout .grid {
+  display: grid;
+  grid-template-columns: repeat(8, 1fr);
+  gap: 0.5rem;
+  justify-items: center;
+  width: 100%;
+}
+/* Botones clínicos por estado */
+
+.status-btn[data-status="sano"] {
+  background-color: #22c55e;
+  color: white;
+}
+
+.status-btn[data-status="caries"] {
+  background-color: #dc2626;
+  color: white;
+}
+
+.status-btn[data-status="obturado"] {
+  background-color: #3b82f6;
+  color: white;
+}
+
+.status-btn[data-status="corona"] {
+  background-color: #eab308;
+  color: white;
+}
+
+.status-btn[data-status="extraido"] {
+  background-color: #6b7280;
+  color: white;
+}
+
+.status-btn[data-status="endodoncia"] {
+  background-color: #a855f7;
+  color: white;
+}
+
+.status-btn[data-status="implante"] {
+  background-color: #0ea5e9;
+  color: white;
+}
+/* Color institucional por estado */
+.status-btn[data-status="sano"]       { background-color: #22c55e; color: white; }
+.status-btn[data-status="caries"]     { background-color: #dc2626; color: white; }
+.status-btn[data-status="obturado"]   { background-color: #3b82f6; color: white; }
+.status-btn[data-status="corona"]     { background-color: #eab308; color: white; }
+.status-btn[data-status="extraido"]   { background-color: #6b7280; color: white; }
+.status-btn[data-status="endodoncia"] { background-color: #a855f7; color: white; }
+.status-btn[data-status="implante"]   { background-color: #0ea5e9; color: white; }
+
+/* Botón seleccionado visualmente sin romper color institucional */
+.status-btn.selected {
+  outline: 2px solid #333;
+  box-shadow: 0 0 0 3px rgba(0, 0, 0, 0.2);
+  transform: scale(1.05);
+}
+.tooth-sano,
+.tooth-caries,
+.tooth-obturado,
+.tooth-corona,
+.tooth-extraido,
+.tooth-endodoncia,
+.tooth-implante {
+  transform: none !important;
+  font-size: 0.75rem !important;
+}
+#odontogramPreview {
+  background-color: #ffffff;
+  border-radius: 0.75rem;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+#odontogramPreview h4 {
+  font-size: 1.125rem;
+  font-weight: 600;
+  color: #1f2937;
+  margin-bottom: 1rem;
+}
+
+#odontogramImage img {
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 0.5rem;
+  border: 1px solid #e5e7eb;
+  background: #f9fafb;
+}
+#odontogramPreview {
+  display: block;
+  background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.05);
+}
+
+#odontogramImage img {
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+}
+#odontogramPreview {
+  background-color: #fff;
+  border-radius: 12px;
+  border: 1px solid #e5e7eb;
+  padding: 1.5rem;
+  margin-top: 1rem;
+  box-shadow: 0 2px 6px rgba(0,0,0,0.04);
+}
+
+#odontogramImage img {
+  max-height: 300px;
+  object-fit: contain;
+  border-radius: 8px;
+  border: 1px solid #e5e7eb;
+  background-color: #f9fafb;
+  padding: 0.5rem;
+}
