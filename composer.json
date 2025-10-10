@@ -1,0 +1,17 @@
+{
+    "name": "hp/dentista",
+    "autoload": {
+        "psr-4": {
+            "Hp\\Dentista\\": "src/"
+        }
+    },
+    "authors": [
+        {
+            "name": "Leonardo Medrano",
+            "email": "leonardo@gmail.com"
+        }
+    ],
+    "require": {
+        "mpdf/mpdf": "^8.2"
+    }
+}
