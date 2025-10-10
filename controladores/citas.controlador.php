@@ -261,5 +261,4 @@ public static function ctrCitasProgramadas($desde=null, $hasta=null){
     public static function ctrCitasMensuales(){
         return ModeloCita::mdlCitasMensuales();
     }
-
 }

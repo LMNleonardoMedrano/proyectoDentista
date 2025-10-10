@@ -231,7 +231,8 @@ static public function mdlMostrarCitasFiltradas($tabla, $estado)
 
 
 
-// Citas Programadas
+
+ // Citas Programadas
     public static function mdlCitasProgramadas($desde = null, $hasta = null){
         $sql = "SELECT c.idCita, c.fecha AS fecha_cita, c.hora, p.nombre AS nombre_paciente, 
                        u.nombre AS nombre_odontologo
