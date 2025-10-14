@@ -19,7 +19,7 @@ class AjaxCita
     }
 
     /*=============================================
-    LISTAR TODAS LAS CITAS CON COLOR POR ODONTÓLOGO
+    LISTAR TODAS LAS CITAS
     =============================================*/
     public function ajaxListarCitas()
     {
@@ -66,7 +66,7 @@ class AjaxCita
     }
 
     /*=============================================
-    LISTAR CITAS POR ODONTÓLOGO (CALENDARIO FILTRADO)
+    LISTAR CITAS POR ODONTÓLOGO
     =============================================*/
     public function ajaxListarPorOdontologo($idUsuarios)
     {
@@ -106,7 +106,49 @@ class AjaxCita
 
         echo json_encode($eventos);
     }
-    
+
+    /*=============================================
+    LISTAR CITAS POR FECHA
+    =============================================*/
+    public function ajaxListarPorFecha($fecha)
+    {
+        $respuesta = ControladorCitas::ctrMostrarCitasPorFecha($fecha);
+        echo json_encode($respuesta);
+    }
+
+   public function ajaxNotificaciones($idUsuario, $idRol)
+{
+    $idUsuario = intval($idUsuario);
+    $idRol = intval($idRol);
+    $fechaHoy = date("Y-m-d");
+
+    $notificaciones = [];
+
+    if ($idRol == 2) { // Odontólogo
+        $citas = ModeloCita::mdlMostrarCitasPorFechaYUsuario('citas', [
+            'fecha' => $fechaHoy,
+            'idUsuarios' => $idUsuario
+        ]);
+    } else { // Admin / Recepción
+        $citas = ModeloCita::mdlMostrarCitasPorFechas('citas', $fechaHoy);
+    }
+
+    foreach ($citas as $c) {
+        $notificaciones[] = [
+            'idCita' => $c['idCita'],
+            'fecha' => $c['fecha'],
+            'hora' => $c['hora'],
+            'estado' => $c['estado'],
+            'motivoConsulta' => $c['motivoConsulta'],
+            'paciente' => $c['paciente'],
+            'odontologo' => $c['odontologo'],
+            'idUsuarios' => $c['idUsuarios']
+        ];
+    }
+
+    echo json_encode($notificaciones);
+}
+
 }
 
 /*=============================================
@@ -143,9 +185,17 @@ if (isset($_POST["accion"])) {
             break;
 
         case "listarPorFecha":
-            $fecha = $_POST["fecha"];
-            $respuesta = ControladorCitas::ctrMostrarCitasPorFecha($fecha);
-            echo json_encode($respuesta);
+            if (isset($_POST["fecha"])) {
+                $cita->ajaxListarPorFecha($_POST["fecha"]);
+            } else {
+                echo json_encode([]);
+            }
+            break;
+
+        case "notificaciones":
+            $idUsuario = $_POST['idUsuario'];
+            $idRol = $_POST['idRol'];
+            $cita->ajaxNotificaciones($idUsuario, $idRol);
             break;
     }
 }
@@ -160,7 +210,6 @@ if (isset($_POST['idCita'], $_POST['estado'])) {
     $resultado = ControladorCitas::ctrActualizarEstadoCita($idCita, $estado);
 
     if ($resultado === "ok") {
-        // Retornamos además el estado actualizado para que el JS lo use
         echo json_encode([
             'success' => true,
             'estado' => $estado
@@ -168,6 +217,5 @@ if (isset($_POST['idCita'], $_POST['estado'])) {
     } else {
         echo json_encode(['success' => false]);
     }
-
-    exit; // <--- MUY IMPORTANTE
+    exit;
 }

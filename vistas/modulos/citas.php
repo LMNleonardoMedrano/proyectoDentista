@@ -212,56 +212,58 @@ if (tienePermiso('listarCitas')):
                 </div>
             </div>
 
-            <!-- Tab 2: Agenda Odontólogos -->
-            <div class="tab-pane fade" id="agendaOdontologos" role="tabpanel">
-                <h2 class="text-center mt-3 mb-4">Agenda de Odontólogos</h2>
-                <div id="vistaOdontologos">
-                    <div class="row px-4">
-                        <?php if (!empty($odontologos)): ?>
-                            <?php foreach ($odontologos as $od):
-                                $color = $coloresOdontologos[$od['idUsuarios']] ?? '#607d8b';
-                            ?>
-                                <div class="col-md-4 mb-4">
-                                    <div class="card shadow-sm">
-                                        <div class="card-header text-white text-center" style="background-color: <?= $color ?>;">
-                                            <strong><?= $od['nombre'].' '.$od['apellido'] ?></strong>
-                                        </div>
-                                        <div class="card-body text-center" style="padding: 20px;">
-                                            <img src="<?= !empty($od["foto"]) && file_exists($od["foto"]) ? $od["foto"] : 'vistas/img/usuarios/default/anonymous.png' ?>"
-                                                class="img-circle mx-auto d-block mb-3" width="90"
-                                                style="border-radius: 50%; border: 2px solid #ccc; object-fit: cover;">
-                                            <button class="btn btn-sm btnVerCalendario"
-                                                style="background-color: <?= $color ?>; color: #fff;"
-                                                data-id="<?= $od['idUsuarios'] ?>"
-                                                data-nombre="<?= $od['nombre'].' '.$od['apellido'] ?>"
-                                                data-color="<?= $color ?>">
-                                                Ver calendario completo
-                                            </button>
-                                        </div>
-                                    </div>
-                                </div>
-                            <?php endforeach; ?>
-                        <?php else: ?>
-                            <p class="text-center text-muted">No hay odontólogos para mostrar.</p>
-                        <?php endif; ?>
+            <div class="tab-pane fade" id="agendaOdontologos" role="tabpanel"
+     data-rol="<?= $_SESSION['idRol'] ?>"
+     data-idusuario="<?= $_SESSION['id'] ?>"
+     data-nombre="<?= $_SESSION['nombre'].' '.$_SESSION['apellido'] ?>">
+    
+    <h2 class="text-center mt-3 mb-4">Agenda de Odontólogos</h2>
+
+    <div id="vistaOdontologos">
+        <div class="row px-4">
+            <?php if (!empty($odontologos)): ?>
+                <?php foreach ($odontologos as $od):
+                    $color = $coloresOdontologos[$od['idUsuarios']] ?? '#607d8b';
+                ?>
+                    <div class="col-md-4 mb-4">
+                        <div class="card shadow-sm">
+                            <div class="card-header text-white text-center" style="background-color: <?= $color ?>;">
+                                <strong><?= $od['nombre'].' '.$od['apellido'] ?></strong>
+                            </div>
+                            <div class="card-body text-center" style="padding: 20px;">
+                                <img src="<?= !empty($od["foto"]) && file_exists($od["foto"]) ? $od["foto"] : 'vistas/img/usuarios/default/anonymous.png' ?>"
+                                     class="img-circle mx-auto d-block mb-3" width="90"
+                                     style="border-radius: 50%; border: 2px solid #ccc; object-fit: cover;">
+                                <button class="btn btn-sm btnVerCalendario"
+                                        style="background-color: <?= $color ?>; color: #fff;"
+                                        data-id="<?= $od['idUsuarios'] ?>"
+                                        data-nombre="<?= $od['nombre'].' '.$od['apellido'] ?>"
+                                        data-color="<?= $color ?>">
+                                    Ver calendario completo
+                                </button>
+                            </div>
+                        </div>
                     </div>
-                </div>
-            </div>
-
-        </div><!-- /.tab-content -->
-
-        <!-- Vista individual del calendario -->
-        <div id="vistaCalendarioOdontologo" style="display:none; margin-top:20px;">
-            <div class="mb-3 px-4">
-                <button class="btn btn-secondary btn-sm" id="btnVolverOdontologos">← Volver a la lista</button>
-            </div>
-            <div class="text-center mb-3">
-                <h3 id="nombreOdontologoSeleccionado" class="font-weight-bold"></h3>
-            </div>
-            <div class="px-4">
-                <div id="calendarioUnico"></div>
-            </div>
+                <?php endforeach; ?>
+            <?php else: ?>
+                <p class="text-center text-muted">No hay odontólogos para mostrar.</p>
+            <?php endif; ?>
         </div>
+    </div>
+
+    <div id="vistaCalendarioOdontologo" style="display:none; margin-top:20px;">
+        <div class="mb-3 px-4">
+            <button class="btn btn-secondary btn-sm" id="btnVolverOdontologos">← Volver a la lista</button>
+        </div>
+        <div class="text-center mb-3">
+            <h3 id="nombreOdontologoSeleccionado" class="font-weight-bold"></h3>
+        </div>
+        <div class="px-4">
+            <div id="calendarioUnico"></div>
+        </div>
+    </div>
+</div>
+
 
     </div>
 </section>

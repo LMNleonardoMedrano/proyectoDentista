@@ -1,52 +1,58 @@
-let calendar; // calendario activo
-let idOdontologoActivo = null; // odontólogo activo
+const agendaDiv = document.getElementById('agendaOdontologos');
+const rol = parseInt(agendaDiv.dataset.rol);
+const idUsuario = parseInt(agendaDiv.dataset.idusuario);
+const nombreUsuario = agendaDiv.dataset.nombre;
 
-$(document).ready(function () {
-  $("#btnVolverOdontologos").on("click", function () {
-    $("#vistaCalendarioOdontologo").hide();
-    $("#vistaOdontologos").show();
-    $(".nav-tabs").show();
-    $(".tab-content").show();
-    $("#calendarioUnico").html("");
-    calendar = null;
+let calendar;
+let idOdontologoActivo = null;
+
+document.addEventListener('DOMContentLoaded', function() {
+
+  // Para odontólogo, mostrar solo su tarjeta en la lista
+  if (rol === 2) {
+    document.querySelectorAll('#vistaOdontologos .col-md-4').forEach(card => {
+      const btn = card.querySelector('.btnVerCalendario');
+      if (parseInt(btn.dataset.id) !== idUsuario) {
+        card.style.display = 'none'; // Ocultar otros odontólogos
+      }
+    });
+  }
+
+  // Botón "Ver calendario completo" (para todos)
+  document.querySelectorAll('.btnVerCalendario').forEach(btn => {
+    btn.addEventListener('click', function() {
+      const id = parseInt(this.dataset.id);
+      const nombre = this.dataset.nombre;
+
+      idOdontologoActivo = id;
+
+      document.getElementById('vistaOdontologos').style.display = 'none';
+      document.getElementById('vistaCalendarioOdontologo').style.display = 'block';
+      document.getElementById('nombreOdontologoSeleccionado').textContent = nombre;
+
+      // Destruir calendario previo si existía
+      if(calendar) {
+        calendar.destroy();
+        calendar = null;
+      }
+
+      inicializarCalendarioUnico(id);
+    });
+  });
+
+  // Botón "Volver a la lista"
+  document.getElementById('btnVolverOdontologos').addEventListener('click', function() {
+    document.getElementById('vistaCalendarioOdontologo').style.display = 'none';
+    document.getElementById('vistaOdontologos').style.display = 'block';
+
+    if(calendar) {
+      calendar.destroy();
+      calendar = null;
+    }
     idOdontologoActivo = null;
   });
 
- $(".btnVerCalendario").on("click", function () {
-  const id = $(this).data("id");
-  const nombre = $(this).data("nombre");
-
-  idOdontologoActivo = id;
-
-  $("#vistaOdontologos").hide();
-  $("#vistaCalendarioOdontologo").show();
-  $(".nav-tabs").hide();
-  $(".tab-content").hide();
-
-  // Ocultar filtros de la tabla
-  $("#filtrosTablaCitas").hide();
-
-  $("#nombreOdontologoSeleccionado").text(nombre);
-  $("#calendarioUnico").html("");
-
-  inicializarCalendarioUnico(id);
-});
-
-$("#btnVolverOdontologos").on("click", function () {
-  $("#vistaCalendarioOdontologo").hide();
-  $("#vistaOdontologos").show();
-  $(".nav-tabs").show();
-  $(".tab-content").show();
-
-  // Mostrar filtros nuevamente
-  $("#filtrosTablaCitas").show();
-
-  $("#calendarioUnico").html("");
-  calendar = null;
-  idOdontologoActivo = null;
-});
-
-});
+}); // DOMContentLoaded
 
 function inicializarCalendarioUnico(idOdontologo) {
   const calendarEl = document.getElementById('calendarioUnico');
@@ -59,13 +65,6 @@ function inicializarCalendarioUnico(idOdontologo) {
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
     },
-    buttonText: {
-      today: 'Hoy',
-      month: 'Mes',
-      week: 'Semana',
-      day: 'Día',
-      list: 'Lista'
-    },
     events: {
       url: "ajax/citas.ajax.php",
       method: "POST",
@@ -75,16 +74,12 @@ function inicializarCalendarioUnico(idOdontologo) {
       }
     },
     dateClick: function (info) {
-      let fechaObj = new Date(info.dateStr); // ← corregido
+      let fechaObj = new Date(info.dateStr);
       let dia = fechaObj.getDate().toString().padStart(2, '0');
       let mes = (fechaObj.getMonth() + 1).toString().padStart(2, '0');
       let anio = fechaObj.getFullYear();
-      let horas = fechaObj.getHours().toString().padStart(2, '0');
-      let minutos = fechaObj.getMinutes().toString().padStart(2, '0');
 
-      let mensajeFecha = info.view.type === 'dayGridMonth'
-        ? `${dia}/${mes}/${anio}`
-        : `${dia}/${mes}/${anio} a las ${horas}:${minutos}`;
+      let mensajeFecha = `${dia}/${mes}/${anio}`;
 
       swal({
         title: `¿Qué deseas hacer el ${mensajeFecha}?`,

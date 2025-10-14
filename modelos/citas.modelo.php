@@ -385,4 +385,60 @@ static public function mdlMostrarCitasFiltradas($tabla, $estado)
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
+
+public static function mdlMostrarCitasPorFechas($tabla, $fecha)
+{
+    $stmt = Conexion::conectar()->prepare("
+        SELECT 
+            c.idCita, 
+            p.nombre AS paciente, 
+            c.idUsuarios, 
+            c.motivoConsulta, 
+            c.fecha, 
+            c.hora, 
+            c.horaFin, 
+            c.estado,
+            COALESCE(TRIM(CONCAT(u.nombre, ' ', u.apellido)), 'Desconocido') AS odontologo
+        FROM $tabla c
+        LEFT JOIN pacientes p ON c.idPaciente = p.idPaciente
+        LEFT JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+        WHERE c.fecha = :fecha
+        ORDER BY c.hora ASC
+    ");
+
+    $stmt->bindParam(":fecha", $fecha, PDO::PARAM_STR);
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+public static function mdlMostrarCitasPorFechaYUsuario($tabla, $filtro)
+{
+    $stmt = Conexion::conectar()->prepare("
+        SELECT 
+            c.idCita, 
+            p.nombre AS paciente, 
+            c.idUsuarios, 
+            c.motivoConsulta, 
+            c.fecha, 
+            c.hora, 
+            c.horaFin, 
+            c.estado,
+            COALESCE(TRIM(CONCAT(u.nombre, ' ', u.apellido)), 'Desconocido') AS odontologo
+        FROM $tabla c
+        LEFT JOIN pacientes p ON c.idPaciente = p.idPaciente
+        LEFT JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+        WHERE c.fecha = :fecha 
+          AND c.idUsuarios = :idUsuarios
+        ORDER BY c.hora ASC
+    ");
+
+    $stmt->bindParam(":fecha", $filtro['fecha'], PDO::PARAM_STR);
+    $stmt->bindParam(":idUsuarios", $filtro['idUsuarios'], PDO::PARAM_INT);
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+
+
 }

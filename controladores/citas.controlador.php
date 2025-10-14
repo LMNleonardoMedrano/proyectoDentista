@@ -227,6 +227,34 @@ static public function ctrMostrarCitasFiltradas($estado)
 
 
 
+ /*=============================================
+    OBTENER NOTIFICACIONES PARA ADMIN/RECEPCIÓN
+    =============================================*/
+    public static function ctrObtenerNotificacionesPorFecha($fecha)
+    {
+        // Trae todas las citas programadas para una fecha
+        $tabla = "citas";
+        $item = "fecha";
+        $valor = $fecha;
+
+        return ModeloCita::mdlMostrarCitasPorFechas($tabla, $item, $valor);
+    }
+
+    /*=============================================
+    OBTENER NOTIFICACIONES PARA ODONTÓLOGO
+    =============================================*/
+    public static function ctrObtenerNotificacionesPorFechaYUsuario($fecha, $idUsuario)
+    {
+        // Trae solo las citas programadas del odontólogo para hoy
+        $tabla = "citas";
+        $filtro = [
+            "fecha" => $fecha,
+            "idUsuarios" => $idUsuario,
+            "estado" => "programada" // solo programadas
+        ];
+
+        return ModeloCita::mdlMostrarCitasPorFechaYUsuario($tabla, $filtro);
+    }
 
 
 

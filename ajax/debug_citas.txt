@@ -1,0 +1,7 @@
+Array
+(
+    [accion] => notificaciones
+    [idUsuario] => 0
+    [idRol] => 2
+    [fecha] => 2025-10-13
+)
