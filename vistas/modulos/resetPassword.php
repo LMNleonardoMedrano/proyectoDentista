@@ -8,15 +8,15 @@
             </div>
             <div class="col-xl-4 col-lg-6 col-md-7 my-auto p-0">
                 <div class="authentication-form mx-auto" style="padding: 40px; border-radius: 10px; box-shadow: 0 4px 20px rgba(0,0,0,0.1); background-color: #ffffff;">
-                    <h3 class="text-center">Forgot Your Password?</h3>
-                    <p class="text-center">Please enter your email address below.</p>
+                    <h3 class="text-center">¿Olvidó su contraseña?</h3>
+                    <p class="text-center">Ingrese su dirección de correo electrónico a continuación.</p>
                     <form method="post"> <!-- Cambiar acción si es necesario -->
                         <div class="form-group">
-                        <input class="form-control" type="email" name="emailRecuperacion" required="" placeholder="Enter your email">
+                        <input class="form-control" type="email" name="emailRecuperacion" required="" placeholder="ingrese su correo electrónico">
                         <i class="ik ik-mail"></i>
                         </div>
                         <div class="sign-btn text-center">
-                            <button class="btn btn-theme" style="background-color: #6EC1E4; color: white; width: 100%; border-radius: 5px;">Submit</button>
+                            <button class="btn btn-theme" style="background-color: #6EC1E4; color: white; width: 100%; border-radius: 5px;">enviar</button>
                         </div>
                         <?php
                             $RecuperarPassword = new ControladorUsuarios();

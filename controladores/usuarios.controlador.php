@@ -240,8 +240,8 @@ INGRESO DE USUARIO
             =============================================*/
                 $tabla = "usuarios";
 
-                // Encriptar la contraseña
-                $encriptar = password_hash($_POST["nuevoPassword"], PASSWORD_BCRYPT);
+                $temporal = $_POST["nuevoPassword"]; // lo que vino del formulario
+                $encriptar = password_hash($temporal, PASSWORD_BCRYPT);
 
                 // Preparar los datos para la inserción
                 $datos = array(
@@ -263,18 +263,61 @@ INGRESO DE USUARIO
 
                 if ($respuesta == "ok") {
 
-                    echo '<script>
-                    swal({
-                        type: "success",
-                        title: "¡El usuario ha sido guardado correctamente!",
-                        showConfirmButton: true,
-                        confirmButtonText: "Cerrar"
-                    }).then(function(result){
-                        if(result.value){
-                            window.location = "usuarios";
-                        }
-                    });
-                </script>';
+                    // Enviar correo con la contraseña temporal
+                    $mail = new PHPMailer(true);
+
+                    try {
+                       $mail->isSMTP();
+                        $mail->Host       = 'smtp.gmail.com';
+                        $mail->SMTPAuth   = true;
+                        $mail->Username   = 'lmnleo4318@gmail.com';
+                        $mail->Password   = 'qwdl ztbq lzvm rwdf';
+                        $mail->SMTPSecure = PHPMailer::ENCRYPTION_STARTTLS;
+                        $mail->Port       = 587;
+
+                        // Establece los destinatarios
+                        $mail->setFrom('lmnleo4318@gmail.com', 'clinica dental Dentani');
+                        $mail->addAddress($_POST["nuevoCorreo"], $_POST["nuevoNombre"]);
+
+                        $mail->isHTML(true);
+                        $mail->Subject = 'Acceso al sistema';
+                        $mail->Body = '
+            <h3>Hola ' . $_POST["nuevoNombre"] . ',</h3>
+            <p>Tu usuario ha sido creado correctamente.</p>
+            <p><strong>Usuario:</strong> ' . $_POST["nuevoUsuario"] . '</p>
+            <p><strong>Contraseña temporal:</strong> ' . $temporal . '</p>
+            <p>Por favor, cambia tu contraseña al iniciar sesión.</p>
+        ';
+
+                        $mail->send();
+
+                        echo '<script>
+            swal({
+                type: "success",
+                title: "¡Usuario registrado y contraseña enviada al correo!",
+                showConfirmButton: true,
+                confirmButtonText: "Cerrar"
+            }).then(function(result){
+                if(result.value){
+                    window.location = "usuarios";
+                }
+            });
+        </script>';
+                    } catch (Exception $e) {
+                        echo '<script>
+            swal({
+                type: "error",
+                title: "¡Usuario registrado, pero error al enviar el correo!",
+                text: "' . htmlspecialchars($mail->ErrorInfo) . '",
+                showConfirmButton: true,
+                confirmButtonText: "Cerrar"
+            }).then(function(result){
+                if(result.value){
+                    window.location = "usuarios";
+                }
+            });
+        </script>';
+                    }
                 }
             } else {
                 echo '<script>
@@ -587,6 +630,9 @@ EDITAR USUARIO
         }
     }
 
+
+
+
     /*=============================================
 RECUPERAR CONTRASEÑA
 =============================================*/
@@ -619,13 +665,13 @@ RECUPERAR CONTRASEÑA
                         $mail->Port       = 587;
 
                         // Establece los destinatarios
-                        $mail->setFrom('lmnleo4318@gmail.com', 'dental');
+                        $mail->setFrom('lmnleo4318@gmail.com', 'clinica dental Dentani');
                         $mail->addAddress($email);
 
                         // Contenido del correo
                         $mail->isHTML(true);
-                        $mail->Subject = 'Recuperación de contraseña';
-                        $mail->Body = 'Hola ' . htmlspecialchars($respuesta["Nombre"]) . ',<br><br>'
+                        $mail->Subject = 'Recuperacion de contrasena';
+                        $mail->Body = 'Hola ' . htmlspecialchars($respuesta["nombre"]) . ',<br><br>'
                             . 'Para restablecer tu contraseña, haz clic en el siguiente enlace:<br>'
                             . '<a href="http://localhost/dentista/index.php?ruta=password">Recuperar contraseña</a><br><br>'
                             . 'Si no solicitaste este cambio, simplemente ignora este correo.';
@@ -763,7 +809,7 @@ EDITAR PERFIL DE USUARIO LOGUEADO
             $respuesta = ModeloUsuarios::mdlEditarPerfil($tabla, $datos);
 
             if ($respuesta == "ok") {
-    echo '<script>
+                echo '<script>
         swal({
             type: "success",
             title: "Perfil actualizado correctamente",
@@ -775,8 +821,8 @@ EDITAR PERFIL DE USUARIO LOGUEADO
             }
         });
     </script>';
-} else {
-    echo '<script>
+            } else {
+                echo '<script>
         swal({
             type: "error",
             title: "Error al actualizar el perfil",
@@ -785,8 +831,7 @@ EDITAR PERFIL DE USUARIO LOGUEADO
             confirmButtonText: "Cerrar"
         });
     </script>';
-}
-
+            }
         }
     }
 

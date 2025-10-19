@@ -46,7 +46,7 @@
                         <td><?= $value["idServicio"] ?></td>
                         <td><?= htmlspecialchars($value["nombreServicio"]) ?></td>
                         <td><?= htmlspecialchars($value["descripcion"]) ?></td>
-                        <td><?= number_format($value["precio"], 2) ?> Bs</td>
+                        <td><?= number_format($value["precio"]) ?> Bs</td>
                         <td>
                             <div class="btn-group">
                                 <!-- Botón Editar -->

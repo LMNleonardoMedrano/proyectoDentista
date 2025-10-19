@@ -24,7 +24,7 @@ $(document).on("click", ".btnEditarRol", function () {
 
 
 /*=============================================
-ELIMINAR MEDICAMENTO
+ELIMINAR ROL
 =============================================*/
 $(document).on("click", ".btnEliminarRol", function () {
 
@@ -132,49 +132,61 @@ $(document).on("click", ".btnEliminarRol", function () {
                                                 const modal = new bootstrap.Modal(document.getElementById('modalFormularios'));
                                                 modal.show();
 
-                                                document.querySelectorAll('.toggleFormulario').forEach(sw => {
-                                                    sw.addEventListener('change', function() {
-                                                        const idPermiso = this.dataset.idpermiso;
-                                                        const activo = this.checked ? 1 : 0;
-                                                        const filaForm = this.closest('tr');
-                                                        const nombreForm = filaForm.querySelector('td:nth-child(2)');
+                                               document.querySelectorAll('.toggleFormulario').forEach(sw => {
+    sw.addEventListener('change', function() {
+        const idPermiso = this.dataset.idpermiso;
+        const activo = this.checked ? 1 : 0;
+        const filaForm = this.closest('tr');
+        const nombreForm = filaForm.querySelector('td:nth-child(2)');
 
-                                                        // Oculta/mostrar nombre del permiso
-                                                        if (activo === 1) {
-                                                            nombreForm.style.textDecoration = 'none';
-                                                            nombreForm.style.opacity = '1';
-                                                        } else {
-                                                            nombreForm.style.textDecoration = 'line-through';
-                                                            nombreForm.style.opacity = '0.5';
-                                                        }
+        // Oculta/mostrar nombre del permiso
+        if (activo === 1) {
+            nombreForm.style.textDecoration = 'none';
+            nombreForm.style.opacity = '1';
+        } else {
+            nombreForm.style.textDecoration = 'line-through';
+            nombreForm.style.opacity = '0.5';
+        }
 
-                                                        fetch('ajax/permisos.ajax.php', {
-                                                                method: 'POST',
-                                                                headers: {
-                                                                    'Content-Type': 'application/x-www-form-urlencoded'
-                                                                },
-                                                                body: `accion=actualizarPermisoIndividual&idRol=${idRol}&idPermiso=${idPermiso}&activo=${activo}`
-                                                            })
-                                                            .then(r => r.text())
-                                                            .then(resp => {
-                                                                // Aquí usamos tu estilo de swal clásico
-                                                                swal({
-                                                                    type: "success",
-                                                                    title: "¡Se actualizó correctamente!",
-                                                                    showConfirmButton: true,
-                                                                    confirmButtonText: "Cerrar"
-                                                                }).then(function(result) {
-                                                                    if (result.value) {
-                                                                        // Si quieres redirigir al módulo de roles:
-                                                                        // window.location = "roles";
+        // Llamada para actualizar el permiso individual
+        fetch('ajax/permisos.ajax.php', {
+            method: 'POST',
+            headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+            body: `accion=actualizarPermisoIndividual&idRol=${idRol}&idPermiso=${idPermiso}&activo=${activo}`
+        })
+        .then(r => r.text())
+        .then(resp => {
+            swal({
+                type: "success",
+                title: "¡Se actualizó correctamente!",
+                showConfirmButton: true,
+                confirmButtonText: "Cerrar"
+            });
 
-                                                                        // Si no quieres redirigir, puedes dejarlo en null
-                                                                    }
-                                                                });
-                                                            });
+            // 🔹 Después de actualizar el permiso, recalculamos el progreso
+            fetch(`ajax/permisos.ajax.php?accion=obtenerProgreso&idRol=${idRol}&modulo=${modulo}`)
+                .then(r => r.json())
+                .then(info => {
+                    // Buscamos la fila del módulo en la tabla principal
+                    const filaModulo = document.querySelector(`button[data-modulo='${modulo}']`)?.closest('tr');
+                    if (filaModulo) {
+                        const barra = filaModulo.querySelector('.progress-bar');
+                        const estado = filaModulo.querySelector('.estado-badge');
 
-                                                    });
-                                                });
+                        // Actualizamos la barra de progreso
+                        barra.style.width = info.porcentaje + '%';
+                        barra.textContent = info.porcentaje + '%';
+                        barra.classList.remove('bg-success', 'bg-warning', 'bg-danger');
+                        barra.classList.add(info.color);
+
+                        // Actualizamos el estado (Habilitado / Parcial / Deshabilitado)
+                        estado.outerHTML = info.estado;
+                    }
+                });
+        });
+    });
+});
+
                                             });
                                     });
                                 });

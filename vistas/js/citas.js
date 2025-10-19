@@ -6,7 +6,7 @@ const nombreUsuario = agendaDiv.dataset.nombre;
 let calendar;
 let idOdontologoActivo = null;
 
-document.addEventListener('DOMContentLoaded', function() {
+document.addEventListener('DOMContentLoaded', function () {
 
   // Para odontólogo, mostrar solo su tarjeta en la lista
   if (rol === 2) {
@@ -20,7 +20,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
   // Botón "Ver calendario completo" (para todos)
   document.querySelectorAll('.btnVerCalendario').forEach(btn => {
-    btn.addEventListener('click', function() {
+    btn.addEventListener('click', function () {
       const id = parseInt(this.dataset.id);
       const nombre = this.dataset.nombre;
 
@@ -31,7 +31,7 @@ document.addEventListener('DOMContentLoaded', function() {
       document.getElementById('nombreOdontologoSeleccionado').textContent = nombre;
 
       // Destruir calendario previo si existía
-      if(calendar) {
+      if (calendar) {
         calendar.destroy();
         calendar = null;
       }
@@ -41,11 +41,11 @@ document.addEventListener('DOMContentLoaded', function() {
   });
 
   // Botón "Volver a la lista"
-  document.getElementById('btnVolverOdontologos').addEventListener('click', function() {
+  document.getElementById('btnVolverOdontologos').addEventListener('click', function () {
     document.getElementById('vistaCalendarioOdontologo').style.display = 'none';
     document.getElementById('vistaOdontologos').style.display = 'block';
 
-    if(calendar) {
+    if (calendar) {
       calendar.destroy();
       calendar = null;
     }
@@ -60,10 +60,22 @@ function inicializarCalendarioUnico(idOdontologo) {
   calendar = new FullCalendar.Calendar(calendarEl, {
     initialView: 'dayGridMonth',
     locale: 'es',
+    timeZone: 'local',
     headerToolbar: {
       left: 'prev,next today',
       center: 'title',
       right: 'dayGridMonth,timeGridWeek,timeGridDay,listWeek'
+    },
+    slotLabelFormat: {
+      hour: 'numeric',
+      minute: '2-digit',
+      hour12: true
+    },
+    eventTimeFormat: {
+      hour: 'numeric',
+      minute: '2-digit',
+      meridiem: 'short',
+      hour12: true
     },
     events: {
       url: "ajax/citas.ajax.php",
@@ -177,7 +189,7 @@ function abrirModalEditar(evento) {
 }
 
 // Abrir modal desde la tabla
-$(document).on("click", ".btnEditarCita", function() {
+$(document).on("click", ".btnEditarCita", function () {
   const cita = $(this).data("cita");
 
   // Crear objeto compatible con abrirModalEditar
@@ -196,7 +208,7 @@ $(document).on("click", ".btnEditarCita", function() {
 });
 
 // Enviar formulario por AJAX
-$(document).on("submit", "#formEditarCita", function(event) {
+$(document).on("submit", "#formEditarCita", function (event) {
   event.preventDefault();
   var datos = new FormData(this);
   datos.append("accion", "editar");
@@ -209,18 +221,18 @@ $(document).on("submit", "#formEditarCita", function(event) {
     contentType: false,
     processData: false,
     dataType: "json",
-    success: function(respuesta) {
+    success: function (respuesta) {
       if (respuesta.ok) {
         mostrarToast("Cita editada correctamente.", "success");
         $("#modalEditarCita").modal("hide");
         if (calendar) calendar.refetchEvents(); // Actualiza FullCalendar
         // Actualiza tabla si quieres:
-        actualizarFilaTabla(respuesta.cita); 
+        actualizarFilaTabla(respuesta.cita);
       } else {
         mostrarToast("Error al editar la cita.", "error");
       }
     },
-    error: function() {
+    error: function () {
       mostrarToast("Hubo un problema al editar la cita.", "error");
     }
   });
@@ -269,54 +281,54 @@ document.getElementById('horaCita').addEventListener('change', function () {
   }
 });
 function updateStatus(idCita, nuevoEstado) {
-    fetch('ajax/citas.ajax.php', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
-        body: `idCita=${idCita}&estado=${nuevoEstado}`
-    })
+  fetch('ajax/citas.ajax.php', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+    body: `idCita=${idCita}&estado=${nuevoEstado}`
+  })
     .then(response => response.json())
     .then(data => {
-        if (data.success) {
-            // Buscamos la fila de la tabla correspondiente
-            const fila = document.querySelector(`tr[data-id='${idCita}']`);
-            if (!fila) return;
+      if (data.success) {
+        // Buscamos la fila de la tabla correspondiente
+        const fila = document.querySelector(`tr[data-id='${idCita}']`);
+        if (!fila) return;
 
-            const badge = fila.querySelector('.estado-badge');
-            if (!badge) return;
+        const badge = fila.querySelector('.estado-badge');
+        if (!badge) return;
 
-            // Actualizamos el texto
-            badge.textContent = data.estado.charAt(0).toUpperCase() + data.estado.slice(1);
+        // Actualizamos el texto
+        badge.textContent = data.estado.charAt(0).toUpperCase() + data.estado.slice(1);
 
-            // Limpiamos clases previas y aplicamos nuevas según estado
-            badge.className = 'estado-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
-            switch(data.estado) {
-                case 'confirmada':
-                    badge.classList.add('bg-green-100', 'text-green-800');
-                    break;
-                case 'cancelada':
-                    badge.classList.add('bg-red-100', 'text-red-800');
-                    break;
-                case 'no_asistio':
-                    badge.classList.add('bg-orange-100', 'text-orange-800');
-                    break;
-                case 'completada':
-                    badge.classList.add('bg-purple-100', 'text-purple-800');
-                    break;
-                default: // programada u otros
-                    badge.classList.add('bg-yellow-100', 'text-yellow-800');
-            }
-
-            // Mensaje rápido temporal
-            const msg = document.createElement('small');
-            msg.textContent = 'Estado actualizado';
-            msg.style.color = '#4caf50';
-            msg.style.marginLeft = '8px';
-            badge.parentElement.appendChild(msg);
-            setTimeout(() => msg.remove(), 1200);
-
-        } else {
-            console.warn('No se pudo actualizar el estado en la base de datos.');
+        // Limpiamos clases previas y aplicamos nuevas según estado
+        badge.className = 'estado-badge inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium';
+        switch (data.estado) {
+          case 'confirmada':
+            badge.classList.add('bg-green-100', 'text-green-800');
+            break;
+          case 'cancelada':
+            badge.classList.add('bg-red-100', 'text-red-800');
+            break;
+          case 'no_asistio':
+            badge.classList.add('bg-orange-100', 'text-orange-800');
+            break;
+          case 'completada':
+            badge.classList.add('bg-purple-100', 'text-purple-800');
+            break;
+          default: // programada u otros
+            badge.classList.add('bg-yellow-100', 'text-yellow-800');
         }
+
+        // Mensaje rápido temporal
+        const msg = document.createElement('small');
+        msg.textContent = 'Estado actualizado';
+        msg.style.color = '#4caf50';
+        msg.style.marginLeft = '8px';
+        badge.parentElement.appendChild(msg);
+        setTimeout(() => msg.remove(), 1200);
+
+      } else {
+        console.warn('No se pudo actualizar el estado en la base de datos.');
+      }
     })
     .catch(err => console.error('Error en la comunicación:', err));
 }
@@ -333,7 +345,7 @@ function mostrarEstadisticas(citas) {
 
   // Contamos por estado
   citas.forEach(cita => {
-    if(stats[cita.estado] !== undefined){
+    if (stats[cita.estado] !== undefined) {
       stats[cita.estado]++;
     }
   });
@@ -344,51 +356,51 @@ function mostrarEstadisticas(citas) {
   document.getElementById('confirmadas').textContent = stats.confirmada;
   document.getElementById('atendida').textContent = stats.atendida;
 }
-  const buscarPaciente = document.getElementById('buscarPaciente');
-  const listaPacientes = document.getElementById('listaPacientes');
-  const pacienteCitaInput = document.getElementById('pacienteCita');
+const buscarPaciente = document.getElementById('buscarPaciente');
+const listaPacientes = document.getElementById('listaPacientes');
+const pacienteCitaInput = document.getElementById('pacienteCita');
 
-  // Mostrar/filtrar lista al escribir
-  buscarPaciente.addEventListener('input', () => {
-    const term = buscarPaciente.value.toLowerCase();
-    const items = listaPacientes.querySelectorAll('li');
-    let visible = false;
+// Mostrar/filtrar lista al escribir
+buscarPaciente.addEventListener('input', () => {
+  const term = buscarPaciente.value.toLowerCase();
+  const items = listaPacientes.querySelectorAll('li');
+  let visible = false;
 
-    items.forEach(item => {
-      const nombre = item.dataset.nombre.toLowerCase();
-      const ci = item.dataset.ci;
-      if (nombre.includes(term) || ci.includes(term)) {
-        item.style.display = '';
-        visible = true;
-      } else {
-        item.style.display = 'none';
-      }
-    });
-
-    listaPacientes.style.display = visible ? 'block' : 'none';
-  });
-
-  // Seleccionar paciente de la lista
-  listaPacientes.addEventListener('click', e => {
-    if(e.target.tagName === 'LI') {
-      const id = e.target.dataset.id;
-      const nombre = e.target.dataset.nombre;
-      const ci = e.target.dataset.ci;
-
-      buscarPaciente.value = `${nombre} – CI: ${ci}`;
-      pacienteCitaInput.value = id; // set hidden input
-      listaPacientes.style.display = 'none';
+  items.forEach(item => {
+    const nombre = item.dataset.nombre.toLowerCase();
+    const ci = item.dataset.ci;
+    if (nombre.includes(term) || ci.includes(term)) {
+      item.style.display = '';
+      visible = true;
+    } else {
+      item.style.display = 'none';
     }
   });
 
-  // Ocultar lista al hacer clic fuera
-  document.addEventListener('click', e => {
-    if (!buscarPaciente.contains(e.target) && !listaPacientes.contains(e.target)) {
-      listaPacientes.style.display = 'none';
-    }
-  });
-  
-document.addEventListener('DOMContentLoaded', function() {
+  listaPacientes.style.display = visible ? 'block' : 'none';
+});
+
+// Seleccionar paciente de la lista
+listaPacientes.addEventListener('click', e => {
+  if (e.target.tagName === 'LI') {
+    const id = e.target.dataset.id;
+    const nombre = e.target.dataset.nombre;
+    const ci = e.target.dataset.ci;
+
+    buscarPaciente.value = `${nombre} – CI: ${ci}`;
+    pacienteCitaInput.value = id; // set hidden input
+    listaPacientes.style.display = 'none';
+  }
+});
+
+// Ocultar lista al hacer clic fuera
+document.addEventListener('click', e => {
+  if (!buscarPaciente.contains(e.target) && !listaPacientes.contains(e.target)) {
+    listaPacientes.style.display = 'none';
+  }
+});
+
+document.addEventListener('DOMContentLoaded', function () {
 
   // =========================
   // Filtrado de citas por estado
@@ -397,7 +409,7 @@ document.addEventListener('DOMContentLoaded', function() {
   const tableRows = document.querySelectorAll('#data_table tbody tr');
 
   filterButtons.forEach(button => {
-    button.addEventListener('click', function() {
+    button.addEventListener('click', function () {
       const filter = this.getAttribute('data-filter');
 
       // Resalta el botón activo
@@ -422,7 +434,7 @@ document.addEventListener('DOMContentLoaded', function() {
   // =========================
   const table = document.querySelector('#data_table tbody');
 
-  table.addEventListener('click', function(e) {
+  table.addEventListener('click', function (e) {
     const btn = e.target.closest('button');
     if (!btn) return;
 

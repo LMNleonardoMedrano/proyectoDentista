@@ -3,155 +3,155 @@
     <div class="main-content">
 
       <div class="page-wrap">
-    <section class="content-header">
-        <div class="d-flex justify-content-between align-items-center mb-3">
+        <section class="content-header">
+          <div class="d-flex justify-content-between align-items-center mb-3">
             <h1 class="text-3xl font-bold text-gray-900">
-                <i class="fas fa-users-cog fa-lg mr-2 text-purple-600"></i>
-                Gestión de Usuarios
+              <i class="fas fa-users-cog fa-lg mr-2 text-purple-600"></i>
+              Gestión de Usuarios
             </h1>
 
             <!-- Botón Agregar solo si tiene permiso crearUsuarios -->
             <?php if (tienePermiso('crearUsuarios')): ?>
-            <button class="btn btn-primary d-flex align-items-center justify-content-center"
-                style="padding: 8px 20px; font-size: 1.1rem; height: 42px;" 
+              <button class="btn btn-primary d-flex align-items-center justify-content-center"
+                style="padding: 8px 20px; font-size: 1.1rem; height: 42px;"
                 data-toggle="modal" data-target="#modalAgregarUsuario">
                 <i class="fas fa-plus mr-2"></i> Agregar usuario
-            </button>
+              </button>
             <?php endif; ?>
-        </div>
-    </section>
+          </div>
+        </section>
 
-    <section class="content">
+        <section class="content">
 
-        <div class="box">
+          <div class="box">
 
             <div class="box-header with-border"></div>
 
             <div class="box-body">
-                <!-- Tabla solo si tiene permiso listarUsuarios -->
-                <?php if (tienePermiso('listarUsuarios')): ?>
+              <!-- Tabla solo si tiene permiso listarUsuarios -->
+              <?php if (tienePermiso('listarUsuarios')): ?>
                 <table id="data_table" class="table dataTable tablaUsuarios" style="width:100%">
-                    <thead>
-                        <tr>
-                            <th>#</th>
-                            <th>Usuario</th>
-                            <th>Información Personal</th>
-                            <th>Perfil</th>
-                            <th>Estado</th>
-                            <th>Último Login</th>
-                            <th>Acciones</th>
-                        </tr>
-                    </thead>
-                    <tbody>
-                        <?php
-                        $item = null;
-                        $valor = null;
-                        $usuarios = ControladorUsuarios::ctrMostrarUsuarios($item, $valor);
+                  <thead>
+                    <tr>
+                      <th>#</th>
+                      <th>Usuario</th>
+                      <th>Información Personal</th>
+                      <th>Perfil</th>
+                      <th>Estado</th>
+                      <th>Último Login</th>
+                      <th>Acciones</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    <?php
+                    $item = null;
+                    $valor = null;
+                    $usuarios = ControladorUsuarios::ctrMostrarUsuarios($item, $valor);
 
-                        foreach ($usuarios as $key => $value):
-                        ?>
-                        <tr class="align-middle">
-                            <!-- ID -->
-                            <td><?php echo $value["idUsuarios"]; ?></td>
+                    foreach ($usuarios as $key => $value):
+                    ?>
+                      <tr class="align-middle">
+                        <!-- ID -->
+                        <td><?php echo $value["idUsuarios"]; ?></td>
 
-                            <!-- Usuario (con iniciales y correo) -->
-                            <td>
-                                <div class="d-flex align-items-center">
-                                    <div class="flex-shrink-0" style="width:40px; height:40px;">
-                                        <?php if (!empty($value['foto'])): ?>
-                                        <img src="<?php echo $value['foto']; ?>" class="rounded-circle"
-                                            style="width:40px; height:40px; object-fit:cover;" alt="Foto">
-                                        <?php else: ?>
-                                        <div class="rounded-circle bg-purple d-flex justify-content-center align-items-center"
-                                            style="width:40px; height:40px;">
-                                            <span class="text-white font-weight-bold">
-                                                <?php echo substr($value['nombre'], 0, 1) . substr($value['apellido'], 0, 1); ?>
-                                            </span>
-                                        </div>
-                                        <?php endif; ?>
-                                    </div>
-                                    <div class="ml-2">
-                                        <div><?php echo htmlspecialchars($value['usuario']); ?></div>
-                                        <div class="text-muted small"><?php echo htmlspecialchars($value['correo']); ?></div>
-                                    </div>
+                        <!-- Usuario (con iniciales y correo) -->
+                        <td>
+                          <div class="d-flex align-items-center">
+                            <div class="flex-shrink-0" style="width:40px; height:40px;">
+                              <?php if (!empty($value['foto'])): ?>
+                                <img src="<?php echo $value['foto']; ?>" class="rounded-circle"
+                                  style="width:40px; height:40px; object-fit:cover;" alt="Foto">
+                              <?php else: ?>
+                                <div class="rounded-circle bg-purple d-flex justify-content-center align-items-center"
+                                  style="width:40px; height:40px;">
+                                  <span class="text-white font-weight-bold">
+                                    <?php echo substr($value['nombre'], 0, 1) . substr($value['apellido'], 0, 1); ?>
+                                  </span>
                                 </div>
-                            </td>
+                              <?php endif; ?>
+                            </div>
+                            <div class="ml-2">
+                              <div><?php echo htmlspecialchars($value['usuario']); ?></div>
+                              <div class="text-muted small"><?php echo htmlspecialchars($value['correo']); ?></div>
+                            </div>
+                          </div>
+                        </td>
 
-                            <!-- Información Personal -->
-                            <td>
-                                <div><?php echo htmlspecialchars($value['nombre'] . ' ' . $value['apellido']); ?></div>
-                                <div class="text-muted small">CI: <?php echo htmlspecialchars($value['ci']); ?></div>
-                                <div class="text-muted small">Domicilio: <?php echo htmlspecialchars($value['domicilio']); ?></div>
-                            </td>
+                        <!-- Información Personal -->
+                        <td>
+                          <div><?php echo htmlspecialchars($value['nombre'] . ' ' . $value['apellido']); ?></div>
+                          <div class="text-muted small">CI: <?php echo htmlspecialchars($value['ci']); ?></div>
+                          <div class="text-muted small">Domicilio: <?php echo htmlspecialchars($value['domicilio']); ?></div>
+                        </td>
 
-                            <!-- Perfil con color -->
-                            <td>
-                                <?php
-                                $colorPerfil = match ($value['nombreRol']) {
-                                    'administrador' => 'badge bg-danger text-white',
-                                    'Odontologo' => 'badge bg-primary text-white',
-                                    'Recepcionista' => 'badge bg-success text-white',
-                                    default => 'badge bg-secondary text-white',
-                                };
-                                ?>
-                                <span class="<?php echo $colorPerfil; ?>"><?php echo ucfirst($value['nombreRol']); ?></span>
-                            </td>
+                        <!-- Perfil con color -->
+                        <td>
+                          <?php
+                          $colorPerfil = match ($value['nombreRol']) {
+                            'administrador' => 'badge bg-danger text-white',
+                            'Odontologo' => 'badge bg-primary text-white',
+                            'Recepcionista' => 'badge bg-success text-white',
+                            default => 'badge bg-secondary text-white',
+                          };
+                          ?>
+                          <span class="<?php echo $colorPerfil; ?>"><?php echo ucfirst($value['nombreRol']); ?></span>
+                        </td>
 
-                            <!-- Estado -->
-                            <td>
-                                <?php if ($value['estado'] != 0): ?>
-                                <button class="btn btn-success btn-xs btnActivar"
-                                    idUsuarios="<?php echo $value['idUsuarios']; ?>" estadoUsuario="0">Activado</button>
-                                <?php else: ?>
-                                <button class="btn btn-danger btn-xs btnActivar"
-                                    idUsuarios="<?php echo $value['idUsuarios']; ?>" estadoUsuario="1">Desactivado</button>
-                                <?php endif; ?>
-                            </td>
+                        <!-- Estado -->
+                        <td>
+                          <?php if ($value['estado'] != 0): ?>
+                            <button class="btn btn-success btn-xs btnActivar"
+                              idUsuarios="<?php echo $value['idUsuarios']; ?>" estadoUsuario="0">Activado</button>
+                          <?php else: ?>
+                            <button class="btn btn-danger btn-xs btnActivar"
+                              idUsuarios="<?php echo $value['idUsuarios']; ?>" estadoUsuario="1">Desactivado</button>
+                          <?php endif; ?>
+                        </td>
 
-                            <!-- Último login -->
-                            <td><?php echo $value['ultimoLogin'] ? date('d/m/Y H:i', strtotime($value['ultimoLogin'])) : 'Nunca'; ?></td>
+                        <!-- Último login -->
+                        <td><?php echo $value['ultimoLogin'] ? date('d/m/Y H:i', strtotime($value['ultimoLogin'])) : 'Nunca'; ?></td>
 
-                            <!-- Acciones con permisos -->
-                            <td>
-                                <div class="btn-group">
+                        <!-- Acciones con permisos -->
+                        <td>
+                          <div class="btn-group">
 
-                                    <!-- Editar solo si tiene permiso editarUsuarios -->
-                                    <?php if (tienePermiso('editarUsuarios')): ?>
-                                    <button class="icon-btn text-success mr-3 btnEditarUsuario"
-                                        idUsuarios="<?php echo $value["idUsuarios"]; ?>"
-                                        data-toggle="modal"
-                                        data-target="#modalEditarUsuario"
-                                        title="Editar">
-                                        <i class="fas fa-edit fa-lg"></i>
-                                    </button>
-                                    <?php endif; ?>
+                            <!-- Editar solo si tiene permiso editarUsuarios -->
+                            <?php if (tienePermiso('editarUsuarios')): ?>
+                              <button class="icon-btn text-success mr-3 btnEditarUsuario"
+                                idUsuarios="<?php echo $value["idUsuarios"]; ?>"
+                                data-toggle="modal"
+                                data-target="#modalEditarUsuario"
+                                title="Editar">
+                                <i class="fas fa-edit fa-lg"></i>
+                              </button>
+                            <?php endif; ?>
 
-                                    <!-- Eliminar solo si tiene permiso eliminarUsuarios y no es el mismo usuario -->
-                                    <?php if ($value['idUsuarios'] != $_SESSION['id'] && tienePermiso('eliminarUsuarios')): ?>
-                                    <button class="icon-btn text-danger mr-3 btnEliminarUsuario"
-                                        idUsuarios="<?php echo $value["idUsuarios"]; ?>"
-                                        fotoUsuario="<?php echo $value["foto"]; ?>"
-                                        usuario="<?php echo $value["usuario"]; ?>"
-                                        title="Eliminar">
-                                        <i class="fas fa-trash fa-lg"></i>
-                                    </button>
-                                    <?php endif; ?>
+                            <!-- Eliminar solo si tiene permiso eliminarUsuarios y no es el mismo usuario -->
+                            <?php if ($value['idUsuarios'] != $_SESSION['id'] && tienePermiso('eliminarUsuarios')): ?>
+                              <button class="icon-btn text-danger mr-3 btnEliminarUsuario"
+                                idUsuarios="<?php echo $value["idUsuarios"]; ?>"
+                                fotoUsuario="<?php echo $value["foto"]; ?>"
+                                usuario="<?php echo $value["usuario"]; ?>"
+                                title="Eliminar">
+                                <i class="fas fa-trash fa-lg"></i>
+                              </button>
+                            <?php endif; ?>
 
-                                </div>
-                            </td>
+                          </div>
+                        </td>
 
-                        </tr>
-                        <?php endforeach; ?>
-                    </tbody>
+                      </tr>
+                    <?php endforeach; ?>
+                  </tbody>
                 </table>
-                <?php endif; ?>
+              <?php endif; ?>
             </div>
 
-        </div>
+          </div>
 
-    </section>
+        </section>
 
-</div>
+      </div>
 
 
       <!--=====================================
@@ -215,9 +215,18 @@ MODAL AGREGAR USUARIO
                         <label for="nuevoCorreo">Correo:</label>
                         <input type="email" class="form-control" name="nuevoCorreo" placeholder="Escribe su correo" required>
                       </div>
-                      <div class="col-md-6 form-group">
+                      <div class="col-md-6 form-group position-relative">
                         <label for="nuevoPassword">Contraseña:</label>
-                        <input type="password" class="form-control" name="nuevoPassword" placeholder="Escribe la contraseña" required>
+                        <input type="password" class="form-control pr-5" id="nuevoPassword" name="nuevoPassword" placeholder="Escribe la contraseña" required>
+                        <span class="toggle-password" onclick="togglePassword()" style="
+                            position: absolute;
+                            top: 38px;
+                            right: 25px;
+                            cursor: pointer;
+                            color: #666;
+                          ">
+                          <i class="fas fa-eye-slash" id="toggleIcon"></i>
+                        </span>
                       </div>
                       <div class="col-md-6 form-group">
                         <label for="nuevoPerfil">Selecciona un Perfil:</label>

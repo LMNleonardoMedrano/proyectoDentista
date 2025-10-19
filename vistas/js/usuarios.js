@@ -276,5 +276,21 @@ document.addEventListener("DOMContentLoaded", function () {
 
     nombreInput.addEventListener("input", function () { limpiarTexto(this); });
     apellidoInput.addEventListener("input", function () { limpiarTexto(this); });
-});
-	
+});	
+/*=============================================
+TOGGLE PASSWORD VISIBILITY
+=============================================*/
+	function togglePassword() {
+  const input = document.getElementById("nuevoPassword");
+  const icon = document.getElementById("toggleIcon");
+
+  if (input.type === "password") {
+    input.type = "text";
+    icon.classList.remove("fa-eye-slash");
+    icon.classList.add("fa-eye");
+  } else {
+    input.type = "password";
+    icon.classList.remove("fa-eye");
+    icon.classList.add("fa-eye-slash");
+  }
+}

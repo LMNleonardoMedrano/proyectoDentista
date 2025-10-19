@@ -18,10 +18,11 @@ class AjaxRoles {
 
         echo json_encode($respuesta);
     }
+    
 }
 
 /*=============================================
-EDITAR MEDICAMENTO
+EDITAR ROL
 =============================================*/	
 
 if (isset($_POST["idRol"])) {
@@ -59,11 +60,33 @@ if (isset($_GET['idRol']) && !isset($_GET['accion'])) {
     $n = 1;
     foreach ($modulos as $mod) {
         $acceso = $mod['tieneAcceso'] ? "checked" : "";
-        $progreso = $mod['tieneAcceso'] ? "100%" : "0%";
-        $colorProgreso = $mod['tieneAcceso'] ? "bg-success" : "bg-danger";
-        $estado = $mod['tieneAcceso']
-            ? "<span class='badge badge-success estado-badge'>Habilitado</span>"
-            : "<span class='badge badge-danger estado-badge'>Deshabilitado</span>";
+       // Calcular el porcentaje de permisos activos por módulo
+$totalPermisos = count($mod['idPermisos']);
+$activos = 0;
+
+foreach ($permisos as $permiso) {
+    if ($permiso['modulo'] === $mod['modulo'] && $permiso['tieneAcceso']) {
+        $activos++;
+    }
+}
+
+$porcentaje = $totalPermisos > 0 ? round(($activos / $totalPermisos) * 100) : 0;
+$progreso = "{$porcentaje}%";
+
+// Color dinámico según el porcentaje
+if ($porcentaje == 100) {
+    $colorProgreso = "bg-success";
+} elseif ($porcentaje >= 50) {
+    $colorProgreso = "bg-warning";
+} else {
+    $colorProgreso = "bg-danger";
+}
+
+        $estado = $porcentaje == 100
+    ? "<span class='badge badge-success estado-badge'>Habilitado</span>"
+    : ($porcentaje > 0
+        ? "<span class='badge badge-warning estado-badge'>Parcial</span>"
+        : "<span class='badge badge-danger estado-badge'>Deshabilitado</span>");
 
         echo "<tr>
                 <td>{$n}</td>
@@ -158,6 +181,39 @@ if (isset($_POST['accion']) && $_POST['accion'] == 'actualizarPermisoIndividual'
         ModeloRoles::mdlQuitarPermiso($idRol, $idPermiso);
         echo "Formulario deshabilitado.";
     }
+    
+    exit;
+    
+}
+/* ===========================================================
+   OBTENER PORCENTAJE DE PROGRESO (GET)
+   =========================================================== */
+if (isset($_GET['accion']) && $_GET['accion'] == 'obtenerProgreso') {
+    $idRol = intval($_GET['idRol']);
+    $modulo = $_GET['modulo'];
+
+    $formularios = ControladorRoles::ctrMostrarFormulariosPorModulo($idRol, $modulo);
+
+    $total = count($formularios);
+    $activos = 0;
+    foreach ($formularios as $form) {
+        if ($form['tieneAcceso']) $activos++;
+    }
+
+    $porcentaje = $total > 0 ? round(($activos / $total) * 100) : 0;
+    $color = $porcentaje == 100 ? 'bg-success' : ($porcentaje >= 50 ? 'bg-warning' : 'bg-danger');
+    $estado = $porcentaje == 100
+        ? "<span class='badge badge-success estado-badge'>Habilitado</span>"
+        : ($porcentaje > 0
+            ? "<span class='badge badge-warning estado-badge'>Parcial</span>"
+            : "<span class='badge badge-danger estado-badge'>Deshabilitado</span>");
+
+    echo json_encode([
+        'porcentaje' => $porcentaje,
+        'color' => $color,
+        'estado' => $estado
+    ]);
     exit;
 }
+
 ?>

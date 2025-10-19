@@ -1,5 +1,7 @@
 <?php
 session_start();
+setlocale(LC_ALL, 'es_ES.UTF-8');
+date_default_timezone_set('America/Lima'); // Cambia a tu país si deseas
 
 // Evitar undefined index
 if (!isset($_SESSION['id'])) {
@@ -16,7 +18,7 @@ if (!isset($_SESSION['permisos'])) {
 ?>
 
 <!doctype html>
-<html class="no-js" lang="en">
+<html class="no-js" lang="es">
 
 <head>
   <meta charset="utf-8" />
@@ -338,7 +340,13 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
   </script>
 
 
-
+<script>
+$('#modalAgregarUsuario').on('shown.bs.modal', function () {
+  const campo = document.getElementById("nuevoPassword");
+  const temp = Math.random().toString(36).slice(-8); // Ejemplo: "x9k2p3qz"
+  campo.value = temp;
+});
+</script>
 </body>
 
 </html>
