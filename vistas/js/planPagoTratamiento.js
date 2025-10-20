@@ -1,5 +1,41 @@
 
 /*=============================================
+EDITAR PLAN DE PAGO
+=============================================*/
+$(document).on("click", ".btnEditarPlanPago", function () {
+
+  var codPlan = $(this).attr("codPlan");
+
+  var datos = new FormData();
+  datos.append("codPlan", codPlan);
+
+  $.ajax({
+
+    url: "ajax/planPago.ajax.php",
+    method: "POST",
+    data: datos,
+    cache: false,
+    contentType: false,
+    processData: false,
+    dataType: "json",
+    success: function (respuesta) {
+
+      $("#idPlanPagoEditar").val(respuesta["codPlan"]);
+      $("#editarDescripcion").val(respuesta["descripcion"]);
+      $("#editarDescuento").val(respuesta["descuento"]);
+      $("#editarFecha").val(respuesta["fecha"]);
+      $("#editarMonto").val(respuesta["monto"]);
+      $("#editarTipoPago").val(respuesta["codTipoPago"]);
+
+      $("#modalEditarPlanPago").modal("show");
+
+    }
+
+  });
+
+});
+
+/*=============================================
 ELIMINAR MEDICAMENTO
 =============================================*/
 $(document).on("click", ".btnEliminarPlanPago", function () {

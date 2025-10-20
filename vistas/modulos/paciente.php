@@ -80,12 +80,12 @@
                     $valor = null;
                     $pacientes = ControladorPaciente::ctrMostrarPaciente($item, $valor);
 
-                    foreach ($pacientes as $key => $value) {
+                    foreach ($pacientes as $i => $value) {
                         $edad = (new DateTime($value["fechaNac"]))->diff(new DateTime('today'))->y;
                         $esMenor = $edad < 18 ? "Sí" : "No";
                     ?>
                     <tr class="<?php echo $esMenor === "Sí" ? "table-warning menor" : ""; ?>">
-                        <td><?php echo $value["idPaciente"]; ?></td>
+                        <td><?= $i+1 ?></td>
                         <td>
                             <div class="d-flex align-items-center">
                                 <div class="rounded-circle bg-primary text-white d-flex justify-content-center align-items-center"

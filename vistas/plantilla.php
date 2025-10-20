@@ -340,13 +340,7 @@ if (isset($_SESSION["iniciarSesion"]) && $_SESSION["iniciarSesion"] == "ok") {
   </script>
 
 
-<script>
-$('#modalAgregarUsuario').on('shown.bs.modal', function () {
-  const campo = document.getElementById("nuevoPassword");
-  const temp = Math.random().toString(36).slice(-8); // Ejemplo: "x9k2p3qz"
-  campo.value = temp;
-});
-</script>
+
 </body>
 
 </html>

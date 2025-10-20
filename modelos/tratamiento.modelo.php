@@ -36,7 +36,9 @@ static public function mdlMostrarTratamientos($tabla, $item, $valor)
                     u.apellido AS apellidoUsuario
              FROM $tabla t
              INNER JOIN pacientes p ON t.idPaciente = p.idPaciente
-             INNER JOIN usuarios u ON t.idUsuarios = u.idUsuarios"
+             INNER JOIN usuarios u ON t.idUsuarios = u.idUsuarios
+             ORDER BY t.idTratamiento DESC"
+             
         );
         $stmt->execute();
         return $stmt->fetchAll();

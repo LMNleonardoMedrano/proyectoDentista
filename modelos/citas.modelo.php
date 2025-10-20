@@ -71,15 +71,16 @@ MOSTRAR TODAS LAS CITAS CON NOMBRES Y ID USUARIOS
 static public function mdlMostrarCitasCompletas($tabla)
 {
     try {
-        $stmt = Conexion::conectar()->prepare(
-            "SELECT c.idCita, c.fecha, c.hora, c.horaFin, c.motivoConsulta, c.estado,
-                    p.nombre AS nombrePaciente,
-                    u.idUsuarios, 
-                    CONCAT(u.nombre, ' ', u.apellido) AS nombreOdontologo
-             FROM $tabla c
-             LEFT JOIN pacientes p ON c.idPaciente = p.idPaciente
-             LEFT JOIN usuarios u ON c.idUsuarios = u.idUsuarios"
-        );
+       $stmt = Conexion::conectar()->prepare(
+    "SELECT c.idCita, c.fecha, c.hora, c.horaFin, c.motivoConsulta, c.estado,
+            p.nombre AS nombrePaciente,
+            u.idUsuarios, 
+            CONCAT(u.nombre, ' ', u.apellido) AS nombreOdontologo
+     FROM $tabla c
+     LEFT JOIN pacientes p ON c.idPaciente = p.idPaciente
+     LEFT JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+     ORDER BY c.idCita DESC"
+);
 
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
@@ -255,12 +256,17 @@ static public function mdlMostrarCitasFiltradas($tabla, $estado)
 
     // Citas Confirmadas
     public static function mdlCitasConfirmadas($desde = null, $hasta = null){
-        $sql = "SELECT c.idCita, c.fecha AS fecha_cita, c.hora, p.nombre AS nombre_paciente, 
-                       u.nombre AS nombre_odontologo
-                FROM citas c
-                JOIN pacientes p ON c.idPaciente = p.idPaciente
-                JOIN usuarios u ON c.idUsuarios = u.idUsuarios
-                WHERE c.estado = 'confirmada'";
+        $sql = $sql = "SELECT 
+            c.idCita, 
+            c.fecha AS fecha_cita, 
+            c.hora, 
+            p.nombre AS nombre_paciente, 
+            CONCAT(u.nombre, ' ', u.apellido) AS nombre_odontologo
+        FROM citas c
+        JOIN pacientes p ON c.idPaciente = p.idPaciente
+        JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+        WHERE c.estado = 'confirmada'";
+
         if($desde && $hasta){
             $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
         }

@@ -4,103 +4,113 @@
       <div class="content-wrapper">
 
         <section class="content-header">
-    <div class="d-flex justify-content-between align-items-center mb-3">
-        <h1 class="text-3xl font-bold text-gray-900">
-            <i class="fas fa-credit-card fa-lg mr-2 text-green-600"></i>
-            Gestión de Pagos
-        </h1>
+          <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="text-3xl font-bold text-gray-900">
+              <i class="fas fa-credit-card fa-lg mr-2 text-green-600"></i>
+              Gestión de Pagos
+            </h1>
 
-        <!-- Botón Agregar Plan de Pago -->
-        <?php if (tienePermiso('crearPagos')): ?>
-        <button class="btn btn-primary d-flex align-items-center justify-content-center"
-            style="padding: 8px 20px; font-size: 1.1rem; height: 42px;" data-toggle="modal" data-target="#modalAgregarPlanPago">
-            <i class="fas fa-plus mr-2"></i> Agregar Plan de Pago
-        </button>
-        <?php endif; ?>
-    </div>
-</section>
+            <!-- Botón Agregar Plan de Pago -->
+            <?php if (tienePermiso('crearPagos')): ?>
+              <button class="btn btn-primary d-flex align-items-center justify-content-center"
+                style="padding: 8px 20px; font-size: 1.1rem; height: 42px;" data-toggle="modal" data-target="#modalAgregarPlanPago">
+                <i class="fas fa-plus mr-2"></i> Agregar Plan de Pago
+              </button>
+            <?php endif; ?>
+          </div>
+        </section>
 
-<?php if (tienePermiso('listarPagos')): ?>
-<section class="content">
-    <div class="box">
-        <div class="box-body">
-            <table id="data_table" class="table table-hover table-bordered" width="100%">
-                <thead>
+        <?php if (tienePermiso('listarPagos')): ?>
+          <section class="content">
+            <div class="box">
+              <div class="box-body">
+                <table id="data_table" class="table table-hover table-bordered" width="100%">
+                  <thead>
                     <tr>
-                        <th>#</th>
-                        <th>Descripción</th>
-                        <th>Descuento</th>
-                        <th>Fecha</th>
-                        <th>Monto</th>
-                        <th>Paciente</th>
-                        <th>Tipo de Pago</th>
-                        <th>Acciones</th>
+                      <th>#</th>
+                      <th>Descripción</th>
+                      <th>Descuento</th>
+                      <th>Fecha</th>
+                      <th>Monto</th>
+                      <th>Paciente</th>
+                      <th>Tipo de Pago</th>
+                      <th>Acciones</th>
                     </tr>
-                </thead>
-                <tbody>
+                  </thead>
+                  <tbody>
                     <?php
                     $claveSecreta = "TuClaveUltraPrivada2025";
                     $planesPago = ControladorPlanPago::ctrMostrarPlanesPago(null, null);
 
-                    foreach ($planesPago as $value):
-                        $codPlan = $value["codPlan"];
-                        $token = hash('sha256', $codPlan . $claveSecreta);
+                    foreach ($planesPago as $i => $value):
+                      $codPlan = $value["codPlan"];
+                      $token = hash('sha256', $codPlan . $claveSecreta);
 
-                        $tratamiento = ControladorTratamiento::ctrMostrarTratamientos("idTratamiento", $value["idTratamiento"]);
-                        $paciente = ControladorPaciente::ctrMostrarPaciente("idPaciente", $tratamiento["idPaciente"] ?? null);
-                        $nombrePaciente = $paciente["nombre"] ?? "Paciente no registrado";
-                        $ciPaciente = $paciente["ci"] ?? "-";
+                      $tratamiento = ControladorTratamiento::ctrMostrarTratamientos("idTratamiento", $value["idTratamiento"]);
+                      $paciente = ControladorPaciente::ctrMostrarPaciente("idPaciente", $tratamiento["idPaciente"] ?? null);
+                      $nombrePaciente = $paciente["nombre"] ?? "Paciente no registrado";
+                      $ciPaciente = $paciente["ci"] ?? "-";
 
-                        $tipoPago = $value["nombreTipoPago"];
-                        switch (strtolower($tipoPago)) {
-                            case 'pago en efectivo': $badgeClass = 'badge bg-success'; break;
-                            case 'qr de recibo': $badgeClass = 'badge bg-primary'; break;
-                            default: $badgeClass = 'badge bg-secondary'; break;
-                        }
+                      $tipoPago = $value["nombreTipoPago"];
+                      switch (strtolower($tipoPago)) {
+                        case 'pago en efectivo':
+                          $badgeClass = 'badge bg-success';
+                          break;
+                        case 'qr de recibo':
+                          $badgeClass = 'badge bg-primary';
+                          break;
+                        default:
+                          $badgeClass = 'badge bg-secondary';
+                          break;
+                      }
                     ?>
-                    <tr class="align-middle">
-                        <td><?= $codPlan ?></td>
-                        <td><?= htmlspecialchars($value["descripcion"]) ?></td>
+
+                      <tr class="align-middle">
+                        <td><?= $i + 1 ?></td>
+                        <td style="white-space: normal; word-wrap: break-word; word-break: break-word;">
+                          <?= htmlspecialchars($value["descripcion"]) ?>
+                        </td>
+
                         <td><?= htmlspecialchars($value["descuento"]) ?>%</td>
                         <td><?= date('d/m/Y', strtotime($value["fecha"])) ?></td>
                         <td><?= number_format($value["monto"]) ?> Bs</td>
                         <td>
-                            <div><?= htmlspecialchars($nombrePaciente) ?></div>
-                            <small class="text-muted">CI: <?= htmlspecialchars($ciPaciente) ?></small>
+                          <div><?= htmlspecialchars($nombrePaciente) ?></div>
+                          <small class="text-muted">CI: <?= htmlspecialchars($ciPaciente) ?></small>
                         </td>
                         <td><span class="<?= $badgeClass ?>"><?= htmlspecialchars($tipoPago) ?></span></td>
                         <td>
-                            <div class="btn-group">
-                                <!-- Botón Editar -->
-                                <?php if (tienePermiso('editarPagos')): ?>
-                                <button class="icon-btn text-success mr-3 btnEditarPlanPago" data-toggle="modal" data-target="#modalEditarPlanPago" codPlan="<?= $codPlan ?>" title="Editar">
-                                    <i class="fas fa-edit fa-lg"></i>
-                                </button>
-                                <?php endif; ?>
+                          <div class="btn-group">
+                            <!-- Botón Editar -->
+                            <?php if (tienePermiso('editarPagos')): ?>
+                              <button class="icon-btn text-success mr-3 btnEditarPlanPago" data-toggle="modal" data-target="#modalEditarPlanPago" codPlan="<?= $codPlan ?>" title="Editar">
+                                <i class="fas fa-edit fa-lg"></i>
+                              </button>
+                            <?php endif; ?>
 
-                                <!-- Botón Ver Recibo -->
-                                <?php if (tienePermiso('verRecibo') && ($tipoPago === "QR de recibo" || strtolower($tipoPago) === "pago en efectivo")): ?>
-                                <a href="vistas/modulos/reciboQR.php?codPlan=<?= $codPlan ?>&token=<?= $token ?>" target="_blank" class="icon-btn text-primary" title="Ver Recibo">
-                                    <i class="fas fa-file-invoice fa-lg"></i>
-                                </a>
-                                <?php endif; ?>
+                            <!-- Botón Ver Recibo -->
+                            <?php if (tienePermiso('verRecibo') && ($tipoPago === "QR de recibo" || strtolower($tipoPago) === "pago en efectivo")): ?>
+                              <a href="vistas/modulos/reciboQR.php?codPlan=<?= $codPlan ?>&token=<?= $token ?>" target="_blank" class="icon-btn text-primary" title="Ver Recibo">
+                                <i class="fas fa-file-invoice fa-lg"></i>
+                              </a>
+                            <?php endif; ?>
 
-                                <!-- Botón Eliminar -->
-                                <?php if (tienePermiso('eliminarPagos')): ?>
-                                <button class="icon-btn text-danger mr-3 btnEliminarPlanPago" codPlan="<?= $codPlan ?>" title="Eliminar">
-                                    <i class="fas fa-trash fa-lg"></i>
-                                </button>
-                                <?php endif; ?>
-                            </div>
+                            <!-- Botón Eliminar -->
+                            <?php if (tienePermiso('eliminarPagos')): ?>
+                              <button class="icon-btn text-danger mr-3 btnEliminarPlanPago" codPlan="<?= $codPlan ?>" title="Eliminar">
+                                <i class="fas fa-trash fa-lg"></i>
+                              </button>
+                            <?php endif; ?>
+                          </div>
                         </td>
-                    </tr>
+                      </tr>
                     <?php endforeach; ?>
-                </tbody>
-            </table>
-        </div>
-    </div>
-</section>
-<?php endif; ?>
+                  </tbody>
+                </table>
+              </div>
+            </div>
+          </section>
+        <?php endif; ?>
 
       </div>
       <!-- Modal Agregar Plan de Pago -->
@@ -262,10 +272,70 @@
             $crearPlanPago->ctrCrearPlanPago();
             ?>
           </div>
-          <?php
-          $borrarPaciente = new ControladorPlanPago();
-          $borrarPaciente->ctrEliminarPlanPago();
-          ?>
+
         </div>
       </div>
+      <!-- Modal Editar Plan de Pago -->
+      <div id="modalEditarPlanPago" class="modal fade" role="dialog">
+        <div class="modal-dialog modal-xl" role="document">
+          <div class="modal-content">
+            <form method="post" id="formEditarPlanPago">
+              <div class="modal-header" style="background:#50c878; color:white;">
+                <h5 class="modal-title w-100 text-center">Editar Plan de Pago</h5>
+                <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+              </div>
+
+              <div class="modal-body">
+                <input type="hidden" id="idPlanPagoEditar" name="idPlanPagoEditar">
+
+                <div class="form-group">
+                  <label>Descripción:</label>
+                  <textarea class="form-control" id="editarDescripcion" name="editarDescripcion" rows="3"></textarea>
+                </div>
+
+                <div class="form-row">
+                  <div class="form-group col-md-4">
+                    <label>Descuento (%):</label>
+                    <input type="number" class="form-control" id="editarDescuento" name="editarDescuento" min="0" max="100">
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Fecha:</label>
+                    <input type="date" class="form-control" id="editarFecha" name="editarFecha">
+                  </div>
+                  <div class="form-group col-md-4">
+                    <label>Monto:</label>
+                    <input type="number" class="form-control" id="editarMonto" name="editarMonto">
+                  </div>
+                </div>
+
+                <div class="form-group">
+                  <label>Tipo de Pago:</label>
+                  <select class="form-control" id="editarTipoPago" name="editarTipoPago">
+                    <?php
+                    $tiposPago = ControladorPlanPago::ctrMostrarTiposPago();
+                    foreach ($tiposPago as $tipo) {
+                      echo '<option value="' . $tipo["codTipoPago"] . '">' . $tipo["nombreTipoPago"] . '</option>';
+                    }
+                    ?>
+                  </select>
+                </div>
+
+              </div>
+
+              <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Cancelar</button>
+                <button type="submit" class="btn btn-outline-success" style="background-color:#50c878; color:white;">Actualizar Plan de Pago</button>
+              </div>
+            </form>
+            <?php
+            $editarPlan = new ControladorPlanPago();
+            $editarPlan->ctrEditarPlanPago();
+            ?>
+          </div>
+        </div>
+      </div>
+      <?php
+      $borrarPaciente = new ControladorPlanPago();
+      $borrarPaciente->ctrEliminarPlanPago();
+      ?>
     </div>

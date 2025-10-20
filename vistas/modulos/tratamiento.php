@@ -1,213 +1,209 @@
 <div class="wrapper">
     <div class="page-wrap">
         <div class="main-content">
-            <div class="content-wrapper">
-                <section class="content-header">
-                    <div class="d-flex justify-content-between align-items-center mb-3">
-                        <h1 class="text-3xl font-bold text-gray-900">
-                            <i class="fas fa-clipboard-list fa-lg mr-2 text-purple-600"></i>
-                            Gestión de Tratamientos
-                        </h1>
+           <div class="content-wrapper">
+    <section class="content-header">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h1 class="text-3xl font-bold text-gray-900">
+                <i class="fas fa-clipboard-list fa-lg mr-2 text-purple-600"></i>
+                Gestión de Tratamientos
+            </h1>
 
-                        <button class="btn btn-primary d-flex align-items-center justify-content-center"
-                            style="padding: 8px 20px; font-size: 1.1rem; height: 42px;" data-toggle="modal" data-target="#modalAgregarTratamiento">
-                            <i class="fas fa-plus mr-2"></i> Agregar Tratamiento
-                        </button>
+            <?php if (tienePermiso('crearTratamiento')): ?>
+            <button class="btn btn-primary d-flex align-items-center justify-content-center"
+                style="padding: 8px 20px; font-size: 1.1rem; height: 42px;" data-toggle="modal" data-target="#modalAgregarTratamiento">
+                <i class="fas fa-plus mr-2"></i> Agregar Tratamiento
+            </button>
+            <?php endif; ?>
+        </div>
+    </section>
+
+    <!-- SECCIÓN PRINCIPAL -->
+    <section class="content">
+        <div class="box">
+
+            <!-- NAV TABS PRINCIPALES -->
+            <ul class="nav nav-tabs mb-4" role="tablist">
+                <li class="nav-item">
+                    <a class="nav-link active" data-toggle="tab" href="#tabTratamientos" role="tab">🩺 Tratamientos</a>
+                </li>
+                <li class="nav-item">
+                    <a class="nav-link" data-toggle="tab" href="#tabMedicamentos" role="tab">💊 Medicamentos</a>
+                </li>
+            </ul>
+
+            <!-- CONTENIDO DE LAS PESTAÑAS -->
+            <div class="tab-content">
+
+                <!-- TAB 1: TRATAMIENTOS -->
+                <div class="tab-pane fade show active" id="tabTratamientos" role="tabpanel">
+                    <?php if (tienePermiso('listarTratamiento')): ?>
+                    <h4 class="text-center mb-3">Todos los tratamientos registrados</h4>
+                    <div class="table-responsive">
+                        <?php
+                        $tratamientos = ControladorTratamiento::ctrMostrarTratamientos(null, null);
+                        ?>
+                        <table id="data_table" class="table table-hover" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Fecha</th>
+                                    <th>Paciente</th>
+                                    <th>Odontólogo</th>
+                                    <th>Total/Saldo</th>
+                                    <th>Estado</th>
+                                    <th>Estado Pago</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($tratamientos)): ?>
+                                    <?php foreach ($tratamientos as $i => $t): ?>
+                                        <tr data-id="<?= $t['idTratamiento'] ?>">
+                                            <td><?= $i + 1 ?></td>
+                                            <td><?= htmlspecialchars($t['fechaRegistro']) ?></td>
+                                            <td>
+                                                <div>
+                                                    <div style="color:#000; font-weight:bold;"><?= htmlspecialchars($t['nombrePaciente']); ?></div>
+                                                    <div style="font-size:0.9rem; color:#555;">CI: <?= htmlspecialchars($t['ciPaciente']); ?></div>
+                                                </div>
+                                            </td>
+                                            <td><?= htmlspecialchars($t['nombreUsuario'] . ' ' . $t['apellidoUsuario']) ?></td>
+                                            <td>
+                                                <div>
+                                                    <div style="color:rgb(5 150 105); font-weight:bold;"><?= number_format($t['saldo']); ?> Bs</div>
+                                                    <div style="font-size:0.9rem; color:rgb(220 38 38);">Saldo: <?= number_format($t['totalPago']); ?> Bs</div>
+                                                </div>
+                                            </td>
+                                            <td><?= htmlspecialchars($t['estado']) ?></td>
+                                            <td><?= htmlspecialchars($t['estadoPago']) ?></td>
+                                            <td>
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <?php if (tienePermiso('editarTratamiento')): ?>
+                                                    <button class="icon-btn text-primary btnEditarTratamiento"
+                                                        data-toggle="modal"
+                                                        data-target="#modalEditarTratamiento"
+                                                        title="Editar">
+                                                        <i class="fas fa-edit fa-lg"></i>
+                                                    </button>
+                                                    <?php endif; ?>
+
+                                                    <button class="icon-btn text-info btnMedicamentosServicios"
+                                                        data-id="<?= $t['idTratamiento'] ?>"
+                                                        title="Agregar medicamentos">
+                                                        <i class="ik ik-plus-circle fa-lg"></i>
+                                                    </button>
+
+                                                    <button class="icon-btn text-secondary btnVerPagos"
+                                                        data-toggle="modal"
+                                                        data-target="#modalPagosTratamiento"
+                                                        title="ver pagos realizados"
+                                                        data-idtratamiento="<?= $t["idTratamiento"] ?>">
+                                                        <i class="ik ik-file-text fa-lg"></i> Ver
+                                                    </button>
+
+                                                    <?php if (tienePermiso('eliminarTratamiento')): ?>
+                                                    <button class="icon-btn text-danger btnEliminarTratamiento"
+                                                        title="Eliminar"
+                                                        idTratamiento="<?= $t['idTratamiento'] ?>">
+                                                        <i class="fas fa-trash fa-lg"></i>
+                                                    </button>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">No hay tratamientos registrados</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
                     </div>
-                </section>
+                    <?php else: ?>
+                        <p class="text-center text-muted mt-3">No tienes permiso para ver los tratamientos.</p>
+                    <?php endif; ?>
+                </div>
 
-                <!-- SECCIÓN PRINCIPAL -->
-                <section class="content">
-                    <div class="box">
-
-
-
-                        <!-- NAV TABS PRINCIPALES -->
-                        <ul class="nav nav-tabs mb-4" role="tablist">
-                            <li class="nav-item">
-                                <a class="nav-link active" data-toggle="tab" href="#tabTratamientos" role="tab">🩺 Tratamientos</a>
-                            </li>
-                            <li class="nav-item">
-                                <a class="nav-link" data-toggle="tab" href="#tabMedicamentos" role="tab">💊 Medicamentos</a>
-                            </li>
-                        </ul>
-
-                        <!-- CONTENIDO DE LAS PESTAÑAS -->
-                        <div class="tab-content">
-
-                            <!-- TAB 1: TRATAMIENTOS -->
-                            <div class="tab-pane fade show active" id="tabTratamientos" role="tabpanel">
-                                <h4 class="text-center mb-3">Todos los tratamientos registrados</h4>
-                                <div class="table-responsive">
-                                    <?php
-                                    $tratamientos = ControladorTratamiento::ctrMostrarTratamientos(null, null);
+                <!-- TAB 2: MEDICAMENTOS -->
+                <div class="tab-pane fade" id="tabMedicamentos" role="tabpanel">
+                    <h4 class="text-center mb-3">Medicamentos asociados a los tratamientos</h4>
+                    <div class="table-responsive">
+                        <?php
+                        $detalles = ControladorTratamiento::ctrMostrarDetalleMedicamento();
+                        $claveSecreta = "TuClaveUltraPrivada2025";
+                        ?>
+                        <table id="data_table_medicamentos" class="table table-hover" width="100%">
+                            <thead>
+                                <tr>
+                                    <th>#</th>
+                                    <th>Tratamiento</th>
+                                    <th>Medicamento</th>
+                                    <th>Dosis</th>
+                                    <th>Inicio</th>
+                                    <th>Final</th>
+                                    <th>Tiempo</th>
+                                    <th>Observación</th>
+                                    <th>Acción</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php if (!empty($detalles)): ?>
+                                    <?php foreach ($detalles as $i => $d):
+                                        $token = hash('sha256', $d["idTratamiento"] . $claveSecreta);
                                     ?>
-                                    <table id="data_table" class="table table-hover" width="100%">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Fecha</th>
-                                                <th>Paciente</th>
-                                                <th>Odontólogo</th>
-                                                <th>Total/Saldo</th>
-                                                <th>Estado</th>
-                                                <th>Estado Pago</th>
-                                                <th>Acciones</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if (!empty($tratamientos)): ?>
-                                                <?php foreach ($tratamientos as $i => $t): ?>
-                                                    <tr data-id="<?= $t['idTratamiento'] ?>">
-                                                        <td><?= $i + 1 ?></td>
-                                                        <td>
-                                                            <div>
-                                                                <?= htmlspecialchars($t['fechaRegistro']) ?>
-                                                            </div>
-                                                        </td>
-                                                        <td>
-                                                            <div>
-                                                                <div style="color:#000; font-weight:bold;">
-                                                                    <?php echo htmlspecialchars($t['nombrePaciente']); ?>
-                                                                </div>
-                                                                <div style="font-size:0.9rem; color:#555;">
-                                                                    CI: <?php echo htmlspecialchars($t['ciPaciente']); ?>
-                                                                </div>
-                                                            </div>
-                                                        </td>
+                                        <tr>
+                                            <td><?= $i + 1 ?></td>
+                                            <td><?= htmlspecialchars($d['nombrePaciente']) ?></td>
+                                            <td><?= htmlspecialchars($d['nombreMedicamento']) ?></td>
+                                            <td><?= htmlspecialchars($d['dosis']) ?></td>
+                                            <td><?= htmlspecialchars($d['fechaInicio']) ?></td>
+                                            <td><?= htmlspecialchars($d['fechaFinal']) ?></td>
+                                            <td><?= htmlspecialchars($d['tiempo']) ?></td>
+                                            <td><?= htmlspecialchars($d['observacion']) ?></td>
+                                            <td>
+                                                <div class="d-flex justify-content-center gap-2">
+                                                    <?php if (tienePermiso('editarTratamiento')): ?>
+                                                    <button class="icon-btn text-primary btnEditarTratamiento"
+                                                        data-toggle="modal"
+                                                        data-target="#modalEditarTratamiento"
+                                                        title="Editar">
+                                                        <i class="fas fa-edit fa-lg"></i>
+                                                    </button>
+                                                    <?php endif; ?>
 
-                                                        <td><?= htmlspecialchars($t['nombreUsuario'] . ' ' . $t['apellidoUsuario']) ?></td>
-                                                        <td>
-                                                            <div>
-                                                                <div style="color:rgb(5 150 105); font-weight:bold;">
-                                                                    <?php echo  number_format($t['saldo']); ?> Bs
-                                                                </div>
-                                                                <div style="font-size:0.9rem; color:rgb(220 38 38);">
-                                                                    Saldo: <?php echo  number_format($t['totalPago']); ?> Bs
-                                                                </div>
-                                                            </div>
-                                                        </td>
+                                                    <a href="vistas/modulos/reciboMedicamento.php?idTratamiento=<?= $d['idTratamiento'] ?>&token=<?= $token ?>"
+                                                        target="_blank"
+                                                        class="icon-btn text-info"
+                                                        title="Ver Recibo">🧾
+                                                    </a>
 
-                                                        <td><?= htmlspecialchars($t['estado']) ?></td>
-                                                        <td><?= htmlspecialchars($t['estadoPago']) ?></td>
-                                                        <td>
-                                                            <div class="d-flex justify-content-center gap-2">
-                                                                
-                                                                <button class="icon-btn text-primary btnEditarTratamiento"                                    
-                                                                    data-toggle="modal"
-                                                                    data-target="#modalEditarTratamiento"
-                                                                    title="Editar">
-                                                                    <i class="fas fa-edit fa-lg"></i>
-                                                                </button>
-                                                                <button class="icon-btn text-info btnMedicamentosServicios"
-                                                                    data-id="<?= $t['idTratamiento'] ?>"
-                                                                    title="Agregar medicamentos">
-                                                                    <i class="ik ik-plus-circle fa-lg"></i>
-                                                                </button>
-                                                                <button class="icon-btn text-secondary btnVerPagos"
-                                                                    data-toggle="modal"
-                                                                    data-target="#modalPagosTratamiento"
-                                                                    title="ver pagos realizados"
-                                                                    data-idtratamiento="<?= $t["idTratamiento"] ?>">
-                                                                    <i class="ik ik-file-text fa-lg"></i> Ver
-                                                                </button>
-                                                                <button class="icon-btn text-danger btnEliminarTratamiento"
-                                                                 title="eliminar"
-                                                                    idTratamiento="<?= $t['idTratamiento'] ?>">
-                                                                    <i class="fas fa-trash fa-lg"></i>
-                                                                </button>
-                                                                <!-- <button class="btn btn-warning btnEditarTratamiento"
-                                                                    data-toggle="modal"
-                                                                    data-target="#modalEditarTratamiento"
-                                                                    idTratamiento="' . $value[" idTratamiento"] . '">
-                                                                    <i class="ik ik-edit-2"></i>
-                                                                </button> -->
+                                                    <?php if (tienePermiso('eliminarTratamiento')): ?>
+                                                    <button class="icon-btn text-danger btnEliminarTratamiento"
+                                                        idTratamiento="<?= $d['idTratamiento'] ?>">
+                                                        <i class="fas fa-trash fa-lg"></i>
+                                                    </button>
+                                                    <?php endif; ?>
+                                                </div>
+                                            </td>
+                                        </tr>
+                                    <?php endforeach; ?>
+                                <?php else: ?>
+                                    <tr>
+                                        <td colspan="9" class="text-center text-muted">No hay medicamentos registrados</td>
+                                    </tr>
+                                <?php endif; ?>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
 
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php else: ?>
-                                                <tr>
-                                                    <td colspan="9" class="text-center text-muted">No hay tratamientos registrados</td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
+            </div><!-- /.tab-content -->
+        </div><!-- /.box -->
+    </section>
+</div>
 
-                            <!-- TAB 2: MEDICAMENTOS -->
-                            <div class="tab-pane fade" id="tabMedicamentos" role="tabpanel">
-                                <h4 class="text-center mb-3">Medicamentos asociados a los tratamientos</h4>
-                                <div class="table-responsive">
-                                    <?php
-                                    $detalles = ControladorTratamiento::ctrMostrarDetalleMedicamento();
-                                    $claveSecreta = "TuClaveUltraPrivada2025";
-                                    ?>
-                                    <table id="data_table_medicamentos" class="table table-hover" width="100%">
-                                        <thead>
-                                            <tr>
-                                                <th>#</th>
-                                                <th>Tratamiento</th>
-                                                <th>Medicamento</th>
-                                                <th>Dosis</th>
-                                                <th>Inicio</th>
-                                                <th>Final</th>
-                                                <th>Tiempo</th>
-                                                <th>Observación</th>
-                                                <th>Acción</th>
-                                            </tr>
-                                        </thead>
-                                        <tbody>
-                                            <?php if (!empty($detalles)): ?>
-                                                <?php foreach ($detalles as $i => $d):
-                                                    $token = hash('sha256', $d["idTratamiento"] . $claveSecreta);
-                                                ?>
-                                                    <tr>
-                                                        <td><?= $i + 1 ?></td>
-                                                        <td><?= htmlspecialchars($d['nombrePaciente']) ?></td>
-                                                        <td><?= htmlspecialchars($d['nombreMedicamento']) ?></td>
-                                                        <td><?= htmlspecialchars($d['dosis']) ?></td>
-                                                        <td><?= htmlspecialchars($d['fechaInicio']) ?></td>
-                                                        <td><?= htmlspecialchars($d['fechaFinal']) ?></td>
-                                                        <td><?= htmlspecialchars($d['tiempo']) ?></td>
-                                                        <td><?= htmlspecialchars($d['observacion']) ?></td>
-                                                        <td>
-                                                            <div class="d-flex justify-content-center gap-2">
-                                                                <button class="icon-btn text-primary btnEditarTratamiento"                                    
-                                                                    data-toggle="modal"
-                                                                    data-target="#modalEditarTratamiento"
-                                                                    title="Editar">
-                                                                    <i class="fas fa-edit fa-lg"></i>
-                                                                </button>
-                                                                <a href="vistas/modulos/reciboMedicamento.php?idTratamiento=<?= $d['idTratamiento'] ?>&token=<?= $token ?>"
-                                                                    target="_blank"
-                                                                    class="icon-btn text-info"
-                                                                    title="Ver Recibo">🧾
-                                                                </a>
-                                                                <button class="icon-btn text-danger btnEliminarTratamiento"
-                                                                    idTratamiento="<?= $d['idTratamiento'] ?>">
-                                                                    <i class="fas fa-trash fa-lg"></i>
-                                                                </button>
-                                                            </div>
-                                                        </td>
-                                                    </tr>
-                                                <?php endforeach; ?>
-                                            <?php else: ?>
-                                                <tr>
-                                                    <td colspan="9" class="text-center text-muted">No hay medicamentos registrados</td>
-                                                </tr>
-                                            <?php endif; ?>
-                                        </tbody>
-                                    </table>
-                                </div>
-                            </div>
-
-                        </div><!-- /.tab-content -->
-
-                    </div><!-- /.box -->
-                </section>
 
                
                 <!-- MODAL DE PAGOS -->

@@ -56,12 +56,13 @@ echo "<table class='table table-bordered table-sm'>
 foreach ($pagos as $i => $p) {
   echo "<tr>
     <td>" . ($i + 1) . "</td>
-    <td>{$p['fecha']}</td>
-    <td>{$p['descripcion']}</td>
+    <td>" . $p['fecha'] . "</td>
+    <td style='white-space: normal; word-wrap: break-word; word-break: break-word;'>" . htmlspecialchars($p['descripcion']) . "</td>
     <td>" . number_format($p['monto'], 2) . " Bs</td>
-    <td>{$p['nombreTipoPago']}</td>
+    <td>" . $p['nombreTipoPago'] . "</td>
   </tr>";
 }
+
 
 // 🔹 Fila con resumen financiero ordenado
 echo "<tr class='text-center align-middle'>

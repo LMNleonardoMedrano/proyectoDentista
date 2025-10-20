@@ -3,7 +3,7 @@
     <div class="main-content">
       <div class="content-wrapper">
 
-       <section class="content-header">
+      <section class="content-header">
     <div class="d-flex justify-content-between align-items-center mb-3">
         <h1 class="h3 fw-bold text-primary">
             <i class="fas fa-calendar-alt fa-lg me-2"></i>
@@ -21,6 +21,7 @@
 </section>
 
 <!-- Filtros -->
+<?php if (tienePermiso('listarCitas')): ?>
 <div id="filtrosTablaCitas" class="mb-4 sticky-top" style="top: 70px; z-index: 1000;">
     <div class="d-flex justify-content-start gap-2 ps-3">
         <button type="button" class="btn btn-primary btn-rounded btn-filter active" data-filter="all">Todas</button>
@@ -49,71 +50,79 @@
     }
     .btn-filter+.btn-filter { margin-left: 8px; }
 </style>
+<?php endif; ?>
 
 <?php
-if (tienePermiso('listarCitas')):
-    $citasDesdeBD = ControladorCitas::ctrMostrarCitas();
+$odontologos = ControladorUsuarios::ctrMostrarSoloOdontologos();
+if (!is_array($odontologos)) $odontologos = [];
+$coloresOdontologos = [2=>'#4caf50',3=>'#2196f3',4=>'#ff9800',6=>'#e91e63',7=>'#dce91eff',8=>'#290630ff'];
 ?>
-
-<!-- Estadísticas -->
-<div class="row g-2 mb-3" id="stats-container">
-    <div class="col-12 col-md-3">
-        <div class="card text-center shadow-sm py-2">
-            <div class="card-body p-2">
-                <h6 class="card-title mb-1">Total Citas</h6>
-                <p class="mb-0 fw-bold text-primary" style="font-size:1.5rem;" id="total-citas">0</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-3">
-        <div class="card text-center shadow-sm py-2">
-            <div class="card-body p-2">
-                <h6 class="card-title mb-1">Programadas</h6>
-                <p class="mb-0 fw-bold text-warning" style="font-size:1.5rem;" id="programadas">0</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-3">
-        <div class="card text-center shadow-sm py-2">
-            <div class="card-body p-2">
-                <h6 class="card-title mb-1">Confirmadas</h6>
-                <p class="mb-0 fw-bold text-success" style="font-size:1.5rem;" id="confirmadas">0</p>
-            </div>
-        </div>
-    </div>
-    <div class="col-12 col-md-3">
-        <div class="card text-center shadow-sm py-2">
-            <div class="card-body p-2">
-                <h6 class="card-title mb-1">Atendidas</h6>
-                <p class="mb-0 fw-bold" style="font-size:1.5rem; color:#6f42c1;" id="atendida">0</p>
-            </div>
-        </div>
-    </div>
-</div>
 
 <section class="content">
     <div class="box">
-        <div class="box-header with-border d-flex justify-content-between">
-            <!-- Exportar PDF -->
+
+        <!-- Estadísticas -->
+        <?php if (tienePermiso('listarCitas')): 
+            $citasDesdeBD = ControladorCitas::ctrMostrarCitas();
+        ?>
+        <div class="row g-2 mb-3" id="stats-container">
+            <div class="col-12 col-md-3">
+                <div class="card text-center shadow-sm py-2">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">Total Citas</h6>
+                        <p class="mb-0 fw-bold text-primary" style="font-size:1.5rem;" id="total-citas">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card text-center shadow-sm py-2">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">Programadas</h6>
+                        <p class="mb-0 fw-bold text-warning" style="font-size:1.5rem;" id="programadas">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card text-center shadow-sm py-2">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">Confirmadas</h6>
+                        <p class="mb-0 fw-bold text-success" style="font-size:1.5rem;" id="confirmadas">0</p>
+                    </div>
+                </div>
+            </div>
+            <div class="col-12 col-md-3">
+                <div class="card text-center shadow-sm py-2">
+                    <div class="card-body p-2">
+                        <h6 class="card-title mb-1">Atendidas</h6>
+                        <p class="mb-0 fw-bold" style="font-size:1.5rem; color:#6f42c1;" id="atendida">0</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <?php endif; ?>
+
+        <!-- Exportar PDF -->
+        <?php if (tienePermiso('listarCitas')): ?>
+        <div class="box-header with-border d-flex justify-content-between mb-3">
             <a href='vistas/modulos/reportesCitas.php' class='btn btn-danger' target='_blank'>
                 <i class='fa fa-file-pdf-o'></i> Exportar PDF
             </a>
         </div>
-
-        <?php
-        $odontologos = ControladorUsuarios::ctrMostrarSoloOdontologos();
-        if (!is_array($odontologos)) $odontologos = [];
-        $coloresOdontologos = [2=>'#4caf50',3=>'#2196f3',4=>'#ff9800',6=>'#e91e63',7=>'#dce91eff',8=>'#290630ff'];
-        ?>
+        <?php endif; ?>
 
         <!-- Nav Tabs -->
         <ul class="nav nav-tabs mb-4" role="tablist">
+            <?php if (tienePermiso('listarCitas')): ?>
             <li class="nav-item"><a class="nav-link active" data-toggle="tab" href="#todasCitas" role="tab">Todas las citas registradas</a></li>
-            <li class="nav-item"><a class="nav-link" data-toggle="tab" href="#agendaOdontologos" role="tab">Agenda de Odontólogos</a></li>
+            <?php endif; ?>
+            <?php if (tienePermiso('verAgenda')): ?>
+            <li class="nav-item"><a class="nav-link <?= !tienePermiso('listarCitas') ? 'active' : '' ?>" data-toggle="tab" href="#agendaOdontologos" role="tab">Agenda de Odontólogos</a></li>
+            <?php endif; ?>
         </ul>
 
         <div class="tab-content">
             <!-- Tab 1: Todas las citas -->
+            <?php if (tienePermiso('listarCitas')): ?>
             <div class="tab-pane fade show active" id="todasCitas" role="tabpanel">
                 <h4 class="text-center mb-3">Todas las citas registradas</h4>
                 <div class="table-responsive">
@@ -153,52 +162,24 @@ if (tienePermiso('listarCitas')):
                                         case 'cancelada': echo 'bg-red-100 text-red-800'; break;
                                         case 'no_asistio': echo 'bg-orange-100 text-orange-800'; break;
                                         default: echo 'bg-gray-100 text-gray-800';
-                                    }?>">
-                                        <?= ucfirst($cita['estado']); ?>
-                                    </span>
+                                    }?>"><?= ucfirst($cita['estado']); ?></span>
                                 </td>
                                 <td>
                                     <div class="d-flex justify-content-center gap-2">
-                                        <!-- Editar -->
                                         <?php if (tienePermiso('editarCitas')): ?>
-                                        <button class="icon-btn text-primary btnEditarCita"
-                                            data-cita='<?= json_encode($cita) ?>'
-                                            data-toggle="modal"
-                                            data-target="#modalEditarCita" title="Editar">
-                                            <i class="fas fa-edit fa-lg"></i>
-                                        </button>
+                                        <button class="icon-btn text-primary btnEditarCita" data-cita='<?= json_encode($cita) ?>' data-toggle="modal" data-target="#modalEditarCita" title="Editar"><i class="fas fa-edit fa-lg"></i></button>
                                         <?php endif; ?>
-
-                                        <!-- Confirmar -->
                                         <?php if (tienePermiso('confirmarCitas')): ?>
-                                        <button class="icon-btn text-success btnConfirmarCita"
-                                            data-id="<?= $cita['idCita'] ?>" title="Confirmar">
-                                            <i class="fas fa-check fa-lg"></i>
-                                        </button>
+                                        <button class="icon-btn text-success btnConfirmarCita" data-id="<?= $cita['idCita'] ?>" title="Confirmar"><i class="fas fa-check fa-lg"></i></button>
                                         <?php endif; ?>
-
-                                        <!-- Cancelar -->
                                         <?php if (tienePermiso('cancelarCitas')): ?>
-                                        <button class="icon-btn text-danger btnCancelarCita"
-                                            data-id="<?= $cita['idCita'] ?>" title="Cancelar">
-                                            <i class="fas fa-times fa-lg"></i>
-                                        </button>
+                                        <button class="icon-btn text-danger btnCancelarCita" data-id="<?= $cita['idCita'] ?>" title="Cancelar"><i class="fas fa-times fa-lg"></i></button>
                                         <?php endif; ?>
-
-                                        <!-- No Asistió -->
                                         <?php if (tienePermiso('noAsistioCitas')): ?>
-                                        <button class="icon-btn text-warning btnNoAsistioCita"
-                                            data-id="<?= $cita['idCita'] ?>" title="No Asistió">
-                                            <i class="fas fa-user-slash fa-lg"></i>
-                                        </button>
+                                        <button class="icon-btn text-warning btnNoAsistioCita" data-id="<?= $cita['idCita'] ?>" title="No Asistió"><i class="fas fa-user-slash fa-lg"></i></button>
                                         <?php endif; ?>
-
-                                        <!-- Eliminar -->
                                         <?php if (tienePermiso('eliminarCitas')): ?>
-                                        <button class="icon-btn text-secondary btnEliminarCita"
-                                            data-id="<?= $cita['idCita'] ?>" title="Eliminar">
-                                            <i class="fas fa-trash fa-lg"></i>
-                                        </button>
+                                        <button class="icon-btn text-secondary btnEliminarCita" data-id="<?= $cita['idCita'] ?>" title="Eliminar"><i class="fas fa-trash fa-lg"></i></button>
                                         <?php endif; ?>
                                     </div>
                                 </td>
@@ -211,64 +192,67 @@ if (tienePermiso('listarCitas')):
                     </table>
                 </div>
             </div>
-
-            <div class="tab-pane fade" id="agendaOdontologos" role="tabpanel"
-     data-rol="<?= $_SESSION['idRol'] ?>"
-     data-idusuario="<?= $_SESSION['id'] ?>"
-     data-nombre="<?= $_SESSION['nombre'].' '.$_SESSION['apellido'] ?>">
-    
-    <h2 class="text-center mt-3 mb-4">Agenda de Odontólogos</h2>
-
-    <div id="vistaOdontologos">
-        <div class="row px-4">
-            <?php if (!empty($odontologos)): ?>
-                <?php foreach ($odontologos as $od):
-                    $color = $coloresOdontologos[$od['idUsuarios']] ?? '#607d8b';
-                ?>
-                    <div class="col-md-4 mb-4">
-                        <div class="card shadow-sm">
-                            <div class="card-header text-white text-center" style="background-color: <?= $color ?>;">
-                                <strong><?= $od['nombre'].' '.$od['apellido'] ?></strong>
-                            </div>
-                            <div class="card-body text-center" style="padding: 20px;">
-                                <img src="<?= !empty($od["foto"]) && file_exists($od["foto"]) ? $od["foto"] : 'vistas/img/usuarios/default/anonymous.png' ?>"
-                                     class="img-circle mx-auto d-block mb-3" width="90"
-                                     style="border-radius: 50%; border: 2px solid #ccc; object-fit: cover;">
-                                <button class="btn btn-sm btnVerCalendario"
-                                        style="background-color: <?= $color ?>; color: #fff;"
-                                        data-id="<?= $od['idUsuarios'] ?>"
-                                        data-nombre="<?= $od['nombre'].' '.$od['apellido'] ?>"
-                                        data-color="<?= $color ?>">
-                                    Ver calendario completo
-                                </button>
-                            </div>
-                        </div>
-                    </div>
-                <?php endforeach; ?>
-            <?php else: ?>
-                <p class="text-center text-muted">No hay odontólogos para mostrar.</p>
             <?php endif; ?>
-        </div>
-    </div>
 
-    <div id="vistaCalendarioOdontologo" style="display:none; margin-top:20px;">
-        <div class="mb-3 px-4">
-            <button class="btn btn-secondary btn-sm" id="btnVolverOdontologos">← Volver a la lista</button>
-        </div>
-        <div class="text-center mb-3">
-            <h3 id="nombreOdontologoSeleccionado" class="font-weight-bold"></h3>
-        </div>
-        <div class="px-4">
-            <div id="calendarioUnico"></div>
-        </div>
-    </div>
-</div>
+            <!-- Tab 2: Agenda de Odontólogos -->
+            <?php if (tienePermiso('verAgenda')): ?>
+            <div class="tab-pane fade <?= !tienePermiso('listarCitas') ? 'show active' : '' ?>" id="agendaOdontologos" role="tabpanel"
+                data-rol="<?= $_SESSION['idRol'] ?>"
+                data-idusuario="<?= $_SESSION['id'] ?>"
+                data-nombre="<?= $_SESSION['nombre'].' '.$_SESSION['apellido'] ?>">
 
+                <h2 class="text-center mt-3 mb-4">Agenda de Odontólogos</h2>
 
+                <div id="vistaOdontologos">
+                    <div class="row px-4">
+                        <?php if (!empty($odontologos)): ?>
+                            <?php foreach ($odontologos as $od):
+                                $color = $coloresOdontologos[$od['idUsuarios']] ?? '#607d8b';
+                            ?>
+                                <div class="col-md-4 mb-4">
+                                    <div class="card shadow-sm">
+                                        <div class="card-header text-white text-center" style="background-color: <?= $color ?>;">
+                                            <strong><?= $od['nombre'].' '.$od['apellido'] ?></strong>
+                                        </div>
+                                        <div class="card-body text-center" style="padding: 20px;">
+                                            <img src="<?= !empty($od["foto"]) && file_exists($od["foto"]) ? $od["foto"] : 'vistas/img/usuarios/default/anonymous.png' ?>"
+                                                 class="img-circle mx-auto d-block mb-3" width="90"
+                                                 style="border-radius: 50%; border: 2px solid #ccc; object-fit: cover;">
+                                            <button class="btn btn-sm btnVerCalendario" style="background-color: <?= $color ?>; color: #fff;"
+                                                    data-id="<?= $od['idUsuarios'] ?>"
+                                                    data-nombre="<?= $od['nombre'].' '.$od['apellido'] ?>"
+                                                    data-color="<?= $color ?>">
+                                                Ver calendario completo
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            <?php endforeach; ?>
+                        <?php else: ?>
+                            <p class="text-center text-muted">No hay odontólogos para mostrar.</p>
+                        <?php endif; ?>
+                    </div>
+                </div>
+
+                <div id="vistaCalendarioOdontologo" style="display:none; margin-top:20px;">
+                    <div class="mb-3 px-4">
+                        <button class="btn btn-secondary btn-sm" id="btnVolverOdontologos">← Volver a la lista</button>
+                    </div>
+                    <div class="text-center mb-3">
+                        <h3 id="nombreOdontologoSeleccionado" class="font-weight-bold"></h3>
+                    </div>
+                    <div class="px-4">
+                        <div id="calendarioUnico"></div>
+                    </div>
+                </div>
+
+            </div>
+            <?php endif; ?>
+
+        </div>
     </div>
 </section>
 
-<?php endif; ?>
 
 
 

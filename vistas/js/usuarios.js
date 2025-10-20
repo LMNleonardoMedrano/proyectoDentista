@@ -294,3 +294,11 @@ TOGGLE PASSWORD VISIBILITY
     icon.classList.add("fa-eye-slash");
   }
 }
+/*=============================================
+GENERAR CONTRASEÑA ALEATORIA
+=============================================*/
+$('#modalAgregarUsuario').on('shown.bs.modal', function () {
+  const campo = document.getElementById("nuevoPassword");
+  const temp = Math.random().toString(36).slice(-8); // Ejemplo: "x9k2p3qz"
+  campo.value = temp;
+});

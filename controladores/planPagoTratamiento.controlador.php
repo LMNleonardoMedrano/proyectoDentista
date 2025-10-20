@@ -6,6 +6,8 @@ CREAR PLAN DE PAGO
 =============================================*/
 static public function ctrCrearPlanPago() {
     if (isset($_POST["nuevoDescripcion"])) {
+
+        // Validaciones de los campos
         if (
             preg_match('/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ ]+$/', $_POST["nuevoDescripcion"]) &&
             is_numeric($_POST["nuevoDescuento"]) &&
@@ -14,6 +16,7 @@ static public function ctrCrearPlanPago() {
             is_numeric($_POST["nuevoTratamiento"]) &&
             is_numeric($_POST["nuevoTipoPago"])
         ) {
+
             $tabla = "planPagoTratamiento";
 
             $datos = array(
@@ -25,35 +28,36 @@ static public function ctrCrearPlanPago() {
                 "codTipoPago" => $_POST["nuevoTipoPago"]
             );
 
-            $respuesta = ModeloPlanPago::mdlIngresarPlanPago($tabla, $datos);
+            // Guardar plan de pago y obtener el codPlan
+            $codPlan = ModeloPlanPago::mdlIngresarPlanPago($tabla, $datos);
 
-            if ($respuesta == "ok") {
+            if ($codPlan) {
 
                 // 🔁 ACTUALIZAR SALDO DEL TRATAMIENTO
                 $monto = $_POST["nuevoMonto"];
                 $idTratamiento = $_POST["nuevoTratamiento"];
-
                 ModeloPlanPago::mdlActualizarSaldoTratamiento($idTratamiento, $monto);
 
-                // 🔎 Verificar saldo actual
+                // 🔎 Verificar saldo actual y actualizar estados
                 $tratamiento = ModeloTratamiento::mdlMostrarTratamientos("tratamiento", "idTratamiento", $idTratamiento);
                 $saldo = $tratamiento["saldo"];
                 $estadoPago = $tratamiento["estadoPago"];
-                $estado = $tratamiento["estado"];
 
-                // 🔄 Lógica de cambio de estados
                 if ($estadoPago == "pendiente" && $saldo > 0) {
-                    // Primer pago → pasa a parcial y tratamiento activo
                     ModeloTratamiento::mdlActualizarEstadoPago($idTratamiento, "parcial");
                     ModeloTratamiento::mdlActualizarEstado($idTratamiento, "activo");
                 }
 
                 if ($saldo <= 0) {
-                    // Pagado completamente → estadoPago = pagado, tratamiento completado
                     ModeloTratamiento::mdlActualizarEstadoPago($idTratamiento, "pagado");
                     ModeloTratamiento::mdlActualizarEstado($idTratamiento, "completado");
                 }
 
+                // 🔑 Generar token para el recibo
+                $claveSecreta = "TuClaveUltraPrivada2025";
+                $token = hash('sha256', $codPlan . $claveSecreta);
+
+                // Mostrar SweetAlert y abrir recibo en nueva pestaña
                 echo '<script>
                     swal({
                         type: "success",
@@ -62,11 +66,24 @@ static public function ctrCrearPlanPago() {
                         confirmButtonText: "Cerrar"
                     }).then(function(result){
                         if(result.value){
+                            window.open("vistas/modulos/reciboQR.php?codPlan='.$codPlan.'&token='.$token.'", "_blank");
+                            $("#modalAgregarPlanPago").modal("hide");
                             window.location = "tratamiento";
                         }
                     });
                 </script>';
+
+            } else {
+                echo '<script>
+                    swal({
+                        type: "error",
+                        title: "¡Error al guardar el plan de pago!",
+                        showConfirmButton: true,
+                        confirmButtonText: "Cerrar"
+                    });
+                </script>';
             }
+
         } else {
             echo '<script>
                 swal({
@@ -74,15 +91,59 @@ static public function ctrCrearPlanPago() {
                     title: "¡Los campos no pueden ir vacíos o contener caracteres no válidos!",
                     showConfirmButton: true,
                     confirmButtonText: "Cerrar"
-                }).then(function(result){
-                    if(result.value){
-                        window.location = "tratamiento";
-                    }
                 });
             </script>';
         }
     }
 }
+    /*=============================================
+    EDITAR PLAN DE PAGO
+    =============================================*/
+static public function ctrEditarPlanPago(){
+        if(isset($_POST["idPlanPagoEditar"])){
+
+            $tabla = "planpagotratamiento";
+
+            $datos = array(
+                "codPlan" => $_POST["idPlanPagoEditar"],
+                "descripcion" => $_POST["editarDescripcion"],
+                "descuento" => $_POST["editarDescuento"],
+                "fecha" => $_POST["editarFecha"],
+                "monto" => $_POST["editarMonto"],
+                "codTipoPago" => $_POST["editarTipoPago"]
+            );
+
+            $respuesta = ModeloPlanPago::mdlEditarPlanPago($tabla, $datos);
+
+            if($respuesta == "ok"){
+                echo '<script>
+                    swal({
+                            type: "success",
+                            title: "El pago ha sido editado correctamente",
+                            showConfirmButton: true,
+                            confirmButtonText: "Cerrar"
+                        }).then(function(result){
+                            if(result.value){
+                                window.location = "planPagoTratamiento";
+                            }
+                        });
+                </script>';
+            } else {
+                echo '<script>
+                    swal({
+                        type: "error",
+                        title: "¡Los campos no pueden ir vacíos o contener caracteres no válidos!",
+                        showConfirmButton: true,
+                        confirmButtonText: "Cerrar"
+                    }).then(function(result){
+                        if(result.value){
+                            window.location = "planPagoTratamiento";
+                        }
+                    });
+                </script>';
+            }
+        }
+    }
 
     /*=============================================
     MOSTRAR PLANES DE PAGO

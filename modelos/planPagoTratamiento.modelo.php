@@ -21,11 +21,12 @@ class ModeloPlanPago
         $stmt->execute();
         return $stmt->fetch(PDO::FETCH_ASSOC);
     } else {
-        $stmt = Conexion::conectar()->prepare(
-            "SELECT pp.*, tp.nombreTipoPago 
-             FROM $tabla pp 
-             INNER JOIN tipoPago tp ON pp.codTipoPago = tp.codTipoPago"
-        );
+       $stmt = Conexion::conectar()->prepare(
+    "SELECT pp.*, tp.nombreTipoPago 
+     FROM $tabla pp 
+     INNER JOIN tipoPago tp ON pp.codTipoPago = tp.codTipoPago
+     ORDER BY pp.codPlan DESC"
+);
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
@@ -38,21 +39,50 @@ class ModeloPlanPago
         $stmt->execute();
         return $stmt->fetchAll(PDO::FETCH_ASSOC);
     }
-    /*=============================================
-    REGISTRAR PLAN DE PAGO
-    =============================================*/
-    static public function mdlIngresarPlanPago($tabla, $datos)
-    {
-        $stmt = Conexion::conectar()->prepare("INSERT INTO $tabla(descripcion, descuento, fecha, monto, idTratamiento, codTipoPago) VALUES (:descripcion, :descuento, :fecha, :monto, :idTratamiento, :codTipoPago)");
+  /*=============================================
+REGISTRAR PLAN DE PAGO
+=============================================*/
+static public function mdlIngresarPlanPago($tabla, $datos)
+{
+    $conexion = Conexion::conectar();
+
+    $stmt = $conexion->prepare("INSERT INTO $tabla(descripcion, descuento, fecha, monto, idTratamiento, codTipoPago) 
+                                VALUES (:descripcion, :descuento, :fecha, :monto, :idTratamiento, :codTipoPago)");
+
+    $stmt->bindParam(":descripcion", $datos["descripcion"], PDO::PARAM_STR);
+    $stmt->bindParam(":descuento", $datos["descuento"], PDO::PARAM_STR);
+    $stmt->bindParam(":fecha", $datos["fecha"], PDO::PARAM_STR);
+    $stmt->bindParam(":monto", $datos["monto"], PDO::PARAM_STR);
+    $stmt->bindParam(":idTratamiento", $datos["idTratamiento"], PDO::PARAM_INT);
+    $stmt->bindParam(":codTipoPago", $datos["codTipoPago"], PDO::PARAM_INT);
+
+    if($stmt->execute()){
+        // Devuelve el codPlan recién insertado
+        return $conexion->lastInsertId();
+    } else {
+        return false;
+    }
+}
+ static public function mdlEditarPlanPago($tabla, $datos){
+        $stmt = Conexion::conectar()->prepare(
+            "UPDATE $tabla SET 
+                descripcion = :descripcion,
+                descuento = :descuento,
+                fecha = :fecha,
+                monto = :monto,
+                codTipoPago = :codTipoPago
+            WHERE codPlan = :codPlan"
+        );
 
         $stmt->bindParam(":descripcion", $datos["descripcion"], PDO::PARAM_STR);
         $stmt->bindParam(":descuento", $datos["descuento"], PDO::PARAM_STR);
         $stmt->bindParam(":fecha", $datos["fecha"], PDO::PARAM_STR);
         $stmt->bindParam(":monto", $datos["monto"], PDO::PARAM_STR);
-        $stmt->bindParam(":idTratamiento", $datos["idTratamiento"], PDO::PARAM_INT);
         $stmt->bindParam(":codTipoPago", $datos["codTipoPago"], PDO::PARAM_INT);
+        $stmt->bindParam(":codPlan", $datos["codPlan"], PDO::PARAM_INT);
 
         return $stmt->execute() ? "ok" : "error";
+        $stmt = null;
     }
     /*=============================================
 ACTUALIZAR SALDO DE TRATAMIENTO
