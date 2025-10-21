@@ -1,7 +1,7 @@
 <?php
 session_start();
 setlocale(LC_ALL, 'es_ES.UTF-8');
-date_default_timezone_set('America/Lima'); // Cambia a tu país si deseas
+date_default_timezone_set('America/La_Paz'); // Cambia a tu país si deseas
 
 // Evitar undefined index
 if (!isset($_SESSION['id'])) {

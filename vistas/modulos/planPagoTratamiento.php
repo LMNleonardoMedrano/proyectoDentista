@@ -139,7 +139,11 @@
                           $tratamientos = ControladorTratamiento::ctrMostrarTratamientos(null, null);
                           foreach ($tratamientos as $tratamiento) {
                             $paciente = ControladorPaciente::ctrMostrarPaciente("idPaciente", $tratamiento["idPaciente"]);
-                            echo '<option value="' . $tratamiento["idTratamiento"] . '" data-ci="' . $paciente['ci'] . '">' . $paciente["nombre"] . '</option>';
+                            echo '<option value="' . $tratamiento["idTratamiento"] . '" 
+             data-ci="' . $paciente['ci'] . '" 
+             data-nombre="' . strtolower($paciente['nombre']) . '" 
+             data-saldo="' . $tratamiento["saldo"] . '">' . $paciente["nombre"] . '</option>';
+
                           }
                           ?>
                         </select>
@@ -170,7 +174,7 @@
                         <input type="number" class="form-control" name="nuevoDescuento" value="0" min="0" max="100" required>
                       </div>
                       <div class="form-group col-md-5">
-                        <label for="nuevoFecha">Fecha:</label>
+                        <label for="nuevoFecha">Fecha de Registro:</label>
                         <input type="date" class="form-control" name="nuevoFecha" id="nuevoFecha" required>
                       </div>
                       <div class="form-group col-md-4">
@@ -238,7 +242,8 @@
                                 data-idtratamiento="<?= $tratamiento['idTratamiento'] ?>"
                                 data-monto="<?= $tratamiento['totalPago'] ?>"
                                 data-saldo="<?= $tratamiento['saldo'] ?>"
-                                data-ci="<?= $paciente['ci'] ?>">
+                                data-ci="<?= $paciente['ci'] ?>"
+                                data-nombre="<?= strtolower($paciente['nombre']) ?>">
                                 <div class="d-flex justify-content-between w-100">
                                   <div>
                                     <strong>Paciente:</strong> <?= $paciente['nombre'] ?> <br>

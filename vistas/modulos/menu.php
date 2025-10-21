@@ -66,7 +66,7 @@ function tienePermiso($modulo)
 
               <?php if (tienePermiso('tratamiento')) : ?>
                 <div class="nav-item <?php echo ($paginaActual == 'tratamiento') ? 'active' : ''; ?>">
-                  <a href="tratamiento"><i class="fa fa-heartbeat"></i><span>Historiales Clínicos</span></a>
+                  <a href="tratamiento"><i class="fa fa-notes-medical"></i><span>Tratamientos</span></a>
                 </div>
               <?php endif; ?>
 

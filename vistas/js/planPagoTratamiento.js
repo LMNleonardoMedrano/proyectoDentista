@@ -121,6 +121,7 @@ $(document).on("click", ".seleccionar-tratamiento", function(){
 
   // Llenar automáticamente el monto del plan con el saldo del tratamiento
   $("#montoPlan").val(saldoTratamiento.toFixed(2));
+  $("#montoPlan").attr("max", saldoTratamiento); // Limita el máximo permitido
 
   // Resaltar tratamiento seleccionado
   $(".seleccionar-tratamiento").removeClass("active bg-success text-white");
@@ -129,31 +130,51 @@ $(document).on("click", ".seleccionar-tratamiento", function(){
 
  // 🔹 Autocompletar con la fecha actual
   window.addEventListener('DOMContentLoaded', () => {
-    const fechaInput = document.getElementById('nuevoFecha');
+  const fechaInput = document.getElementById('nuevoFecha');
+  if (!fechaInput.value) {
     const hoy = new Date();
     const yyyy = hoy.getFullYear();
-    const mm = String(hoy.getMonth() + 1).padStart(2, '0'); // Mes con 2 dígitos
-    const dd = String(hoy.getDate()).padStart(2, '0');      // Día con 2 dígitos
+    const mm = String(hoy.getMonth() + 1).padStart(2, '0');
+    const dd = String(hoy.getDate()).padStart(2, '0');
     fechaInput.value = `${yyyy}-${mm}-${dd}`;
-  });
+  }
+});
 
   // 🔹 Filtrar por CI (tu código existente)
-  document.getElementById('buscarCI').addEventListener('input', function() {
-    let ci = this.value.trim();
-    let lista = document.querySelectorAll('#listaTratamientosDisponibles li');
+document.getElementById('buscarCI').addEventListener('input', function() {
+  let filtro = this.value.trim().toLowerCase();
 
-    lista.forEach(item => {
-      item.style.display = item.dataset.ci.includes(ci) ? '' : 'none';
-    });
-
-    // Filtrar select de tratamiento también
-    let select = document.getElementById('nuevoTratamiento');
-    for (let i = 0; i < select.options.length; i++) {
-      let option = select.options[i];
-      if (ci === "" || option.dataset.ci.includes(ci)) {
-        option.style.display = '';
-      } else {
-        option.style.display = 'none';
-      }
-    }
+  // 🔍 Filtrar lista de tratamientos disponibles
+  let lista = document.querySelectorAll('#listaTratamientosDisponibles li');
+  lista.forEach(item => {
+    let ci = item.dataset.ci?.toLowerCase() || '';
+    let nombre = item.dataset.nombre?.toLowerCase() || '';
+    item.style.display = (ci.includes(filtro) || nombre.includes(filtro)) ? '' : 'none';
   });
+
+  // 🔍 Filtrar opciones del select de tratamiento
+  let select = document.getElementById('nuevoTratamiento');
+  for (let i = 0; i < select.options.length; i++) {
+    let option = select.options[i];
+    let ci = option.dataset.ci?.toLowerCase() || '';
+    let nombre = option.dataset.nombre?.toLowerCase() || '';
+    option.style.display = (filtro === "" || ci.includes(filtro) || nombre.includes(filtro)) ? '' : 'none';
+  }
+});
+/*=============================================
+VALIDAR QUE EL MONTO NO EXCEDA EL SALDO DEL TRATAMIENTO
+=============================================*/
+  $("#formPlanPago").on("submit", function(e) {
+  const monto = parseFloat($("#montoPlan").val());
+  const saldo = parseFloat($("#nuevoTratamiento option:selected").data("saldo"));
+
+  if (!isNaN(monto) && !isNaN(saldo) && monto > saldo) {
+    e.preventDefault();
+    Swal.fire({
+      icon: "warning",
+      title: "Monto excedido",
+      text: "El monto no puede ser mayor al saldo disponible (Bs. " + saldo.toFixed(2) + ").",
+      confirmButtonText: "Entendido"
+    });
+  }
+});

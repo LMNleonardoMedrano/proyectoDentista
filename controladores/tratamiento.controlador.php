@@ -2,8 +2,7 @@
 
 class ControladorTratamiento
 {
-
-    /*=============================================
+/*=============================================
 CREAR TRATAMIENTO
 =============================================*/
 static public function ctrCrearTratamiento()
@@ -35,7 +34,7 @@ static public function ctrCrearTratamiento()
             if ($idTratamiento) {
 
                 /* =============================================
-                   GUARDAR SERVICIOS
+                GUARDAR SERVICIOS
                 ============================================= */
                 if (isset($_POST['servicios']) && is_array($_POST['servicios'])) {
                     foreach ($_POST['servicios'] as $idServicio) {
@@ -51,7 +50,7 @@ static public function ctrCrearTratamiento()
                 }
 
                 /* =============================================
-                   GUARDAR MEDICAMENTOS
+                GUARDAR MEDICAMENTOS
                 ============================================= */
                 if (
                     isset($_POST['codMedicamento']) &&
@@ -74,29 +73,30 @@ static public function ctrCrearTratamiento()
                         ModeloTratamiento::mdlIngresarDetalleMedicamento('detallemedicamento', $datosMedicamento);
                     }
                 }
-/* =============================================
-   ACTUALIZAR ESTADO DE CITA (si existe seleccionada)
-============================================= */
-if (!empty($_POST["idCitaSeleccionada"])) {
-    $datosCita = array(
-        "idCita" => $_POST["idCitaSeleccionada"],
-        "estado" => "atendida"
-    );
-    ModeloCita::mdlActualizarEstadoCita("citas", $datosCita);
-
-    // Enviar idCita al frontend con JS
-    echo '<script>
-        document.addEventListener("DOMContentLoaded", function() {
-            let citaItem = document.querySelector("[data-idcita=\''.$_POST["idCitaSeleccionada"].'\']");
-            if(citaItem){
-                citaItem.remove();
-            }
-        });
-    </script>';
-}
 
                 /* =============================================
-                   RESPUESTA OK
+                ACTUALIZAR ESTADO DE CITA (si existe seleccionada)
+                ============================================= */
+                if (!empty($_POST["idCitaSeleccionada"])) {
+                    $datosCita = array(
+                        "idCita" => $_POST["idCitaSeleccionada"],
+                        "estado" => "atendida"
+                    );
+                    ModeloCita::mdlActualizarEstadoCita("citas", $datosCita);
+
+                    // Enviar idCita al frontend con JS
+                    echo '<script>
+                        document.addEventListener("DOMContentLoaded", function() {
+                            let citaItem = document.querySelector("[data-idcita=\'' . $_POST["idCitaSeleccionada"] . '\']");
+                            if(citaItem){
+                                citaItem.remove();
+                            }
+                        });
+                    </script>';
+                }
+
+                /* =============================================
+                RESPUESTA OK
                 ============================================= */
                 echo '<script>
                     swal({
@@ -110,7 +110,6 @@ if (!empty($_POST["idCitaSeleccionada"])) {
                         }
                     });
                 </script>';
-
             } else {
                 echo '<script>
                     swal({
@@ -121,37 +120,50 @@ if (!empty($_POST["idCitaSeleccionada"])) {
                     });
                 </script>';
             }
+        } else {
+            /* =============================================
+            ALERTA POR DATOS INCOMPLETOS O INVÁLIDOS
+            ============================================= */
+            echo '<script>
+                swal({
+                    type: "warning",
+                    title: "¡Faltan datos !",
+                    text: "Por favor, revisa que todos los campos estén completos y correctamente llenados.",
+                    showConfirmButton: true,
+                    confirmButtonText: "Cerrar"
+                });
+            </script>';
         }
     }
 }
 
-   /*=============================================
+    /*=============================================
 GUARDAR NUEVOS MEDICAMENTOS (ACUMULANDO)
 =============================================*/
-public function ctrGuardarMedicamentos()
-{
-    if (isset($_POST['idTratamientoMedicamentos']) && !empty($_POST['idTratamientoMedicamentos'])) {
+    public function ctrGuardarMedicamentos()
+    {
+        if (isset($_POST['idTratamientoMedicamentos']) && !empty($_POST['idTratamientoMedicamentos'])) {
 
-        $idTratamiento = (int)$_POST['idTratamientoMedicamentos'];
+            $idTratamiento = (int)$_POST['idTratamientoMedicamentos'];
 
-        // Medicamentos Nuevos
-        if (isset($_POST['codMedicamento']) && is_array($_POST['codMedicamento'])) {
-            foreach ($_POST['codMedicamento'] as $i => $cod) {
-                $datosMedicamento = array(
-                    'idTratamiento' => $idTratamiento,
-                    'codMedicamento' => $cod,
-                    'dosis' => $_POST['dosis'][$i] ?? null,
-                    'fechaInicio' => $_POST['fechaInicio'][$i] ?? null,
-                    'fechaFinal' => $_POST['fechaFinal'][$i] ?? null,
-                    'observacion' => $_POST['observacion'][$i] ?? null,
-                    'tiempo' => $_POST['tiempo'][$i] ?? null
-                );
+            // Medicamentos Nuevos
+            if (isset($_POST['codMedicamento']) && is_array($_POST['codMedicamento'])) {
+                foreach ($_POST['codMedicamento'] as $i => $cod) {
+                    $datosMedicamento = array(
+                        'idTratamiento' => $idTratamiento,
+                        'codMedicamento' => $cod,
+                        'dosis' => $_POST['dosis'][$i] ?? null,
+                        'fechaInicio' => $_POST['fechaInicio'][$i] ?? null,
+                        'fechaFinal' => $_POST['fechaFinal'][$i] ?? null,
+                        'observacion' => $_POST['observacion'][$i] ?? null,
+                        'tiempo' => $_POST['tiempo'][$i] ?? null
+                    );
 
-                ModeloTratamiento::mdlIngresarDetalleMedicamento('detallemedicamento', $datosMedicamento);
+                    ModeloTratamiento::mdlIngresarDetalleMedicamento('detallemedicamento', $datosMedicamento);
+                }
             }
-        }
 
-        echo '<script>
+            echo '<script>
             swal({
                 type: "success",
                 title: "Medicamentos guardados correctamente",
@@ -161,8 +173,8 @@ public function ctrGuardarMedicamentos()
                 if(result.value){ window.location = "tratamiento"; }
             });
         </script>';
+        }
     }
-}
 
 
     /*=============================================
@@ -270,19 +282,21 @@ public function ctrGuardarMedicamentos()
     {
         return ModeloTratamiento::mdlActualizarEstadoPago($idTratamiento, $estadoPago);
     }
-     /*=============================================
+    /*=============================================
 OBTENER SERVICIOS POR TRATAMIENTO
 =============================================*/
-static public function ctrObtenerServiciosPorTratamiento($idTratamiento) {
-    if (!empty($idTratamiento) && is_numeric($idTratamiento)) {
-        return ModeloTratamiento::mdlObtenerServiciosPorTratamiento($idTratamiento);
+    static public function ctrObtenerServiciosPorTratamiento($idTratamiento)
+    {
+        if (!empty($idTratamiento) && is_numeric($idTratamiento)) {
+            return ModeloTratamiento::mdlObtenerServiciosPorTratamiento($idTratamiento);
+        }
+        return [];
     }
-    return [];
-}
- /*=============================================
+    /*=============================================
     MOSTRAR TRATAMIENTOS PENDIENTES
     =============================================*/
-    static public function ctrMostrarTratamientosPendientes() {
+    static public function ctrMostrarTratamientosPendientes()
+    {
 
         $tabla = "tratamiento";
         $respuesta = ModeloTratamiento::mdlMostrarTratamientosPendientes($tabla);
@@ -299,35 +313,43 @@ static public function ctrObtenerServiciosPorTratamiento($idTratamiento) {
 
 
 
-    static public function ctrTratamientosCompletados($desde = null, $hasta = null) {
+    static public function ctrTratamientosCompletados($desde = null, $hasta = null)
+    {
         return ModeloTratamiento::mdlTratamientosCompletados($desde, $hasta);
     }
 
-    static public function ctrTratamientosParciales($desde = null, $hasta = null) {
+    static public function ctrTratamientosParciales($desde = null, $hasta = null)
+    {
         return ModeloTratamiento::mdlTratamientosParciales($desde, $hasta);
     }
 
-    static public function ctrTratamientosActivos($desde = null, $hasta = null) {
+    static public function ctrTratamientosActivos($desde = null, $hasta = null)
+    {
         return ModeloTratamiento::mdlTratamientosActivos($desde, $hasta);
     }
 
-    static public function ctrTratamientosNoCancelados($desde = null, $hasta = null) {
+    static public function ctrTratamientosNoCancelados($desde = null, $hasta = null)
+    {
         return ModeloTratamiento::mdlTratamientosNoCancelados($desde, $hasta);
     }
 
-    static public function ctrTratamientosPorOdontologo($desde = null, $hasta = null) {
+    static public function ctrTratamientosPorOdontologo($desde = null, $hasta = null)
+    {
         return ModeloTratamiento::mdlTratamientosPorOdontologo($desde, $hasta);
     }
 
-    static public function ctrTratamientosPorServicio($desde = null, $hasta = null) {
+    static public function ctrTratamientosPorServicio($desde = null, $hasta = null)
+    {
         return ModeloTratamiento::mdlTratamientosPorServicio($desde, $hasta);
     }
 
-    static public function ctrTratamientosPorEstado($desde = null, $hasta = null) {
+    static public function ctrTratamientosPorEstado($desde = null, $hasta = null)
+    {
         return ModeloTratamiento::mdlTratamientosPorEstado($desde, $hasta);
     }
 
-    static public function ctrTratamientosMensuales() {
+    static public function ctrTratamientosMensuales()
+    {
         return ModeloTratamiento::mdlTratamientosMensuales();
     }
 }

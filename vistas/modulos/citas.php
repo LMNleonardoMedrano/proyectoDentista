@@ -326,25 +326,7 @@ $coloresOdontologos = [2=>'#4caf50',3=>'#2196f3',4=>'#ff9800',6=>'#e91e63',7=>'#
 
                     <div class="form-group">
                       <label for="motivoCita">Motivo de la Cita:</label>
-                      <select class="form-control" name="motivoCita" id="motivoCita" required>
-                        <option value="">Seleccione un motivo</option>
-                        <option value="Dolor dental o sensibilidad">Dolor dental o sensibilidad</option>
-                        <option value="Limpieza dental / Profilaxis">Limpieza dental / Profilaxis</option>
-                        <option value="Revisión de control">Revisión de control</option>
-                        <option value="Caries / Obturación">Caries / Obturación</option>
-                        <option value="Extracción dental">Extracción dental</option>
-                        <option value="Muelas del juicio">Muelas del juicio</option>
-                        <option value="Endodoncia (tratamiento de conducto)">Endodoncia (tratamiento de conducto)</option>
-                        <option value="Urgencia odontológica">Urgencia odontológica</option>
-                        <option value="Sangrado o inflamación de encías">Sangrado o inflamación de encías</option>
-                        <option value="Ortodoncia / Brackets">Ortodoncia / Brackets</option>
-                        <option value="Blanqueamiento dental">Blanqueamiento dental</option>
-                        <option value="Halitosis (mal aliento)">Halitosis (mal aliento)</option>
-                        <option value="Prótesis dentales">Prótesis dentales</option>
-                        <option value="Implantes dentales">Implantes dentales</option>
-                        <option value="Traumatismo / Golpe dental">Traumatismo / Golpe dental</option>
-                        <option value="Bruxismo / Dolor en mandíbula">Bruxismo / Dolor en mandíbula</option>
-                      </select>
+                      <textarea class="form-control" name="motivoCita" id="motivoCita" rows="3" required></textarea>
                     </div>
                     <div class="form-group">
                       <label for="estado">Estado:</label>
@@ -437,7 +419,7 @@ $coloresOdontologos = [2=>'#4caf50',3=>'#2196f3',4=>'#ff9800',6=>'#e91e63',7=>'#
 
                   <div class="form-group">
                     <label for="editarMotivo">Motivo de la Cita:</label>
-                    <input type="text" class="form-control" name="editarMotivo" id="editarMotivo" required>
+                    <textarea class="form-control" name="editarMotivo" id="editarMotivo" rows="3" required></textarea>
                   </div>
                   <div class="form-group">
                     <label for="editarEstado">Estado:</label>
