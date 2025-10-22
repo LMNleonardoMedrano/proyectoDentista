@@ -38,9 +38,10 @@ switch ($tipo) {
             foreach ($citas as $c) {
                 $contenido = "
                     <b>Hora:</b> {$c['hora']}<br>
+                    <b>Hora de Fin:</b> {$c['horaFin']}<br>
                     <b>Paciente:</b> {$c['nombre_paciente']}<br>
                     <b>Odontólogo:</b> {$c['nombre_odontologo']}<br>
-                    <b>Servicio:</b> {$c['servicio']}<br>
+                    
                     <b>Estado:</b> Programada
                 ";
                 echo generarTarjeta("Cita Programada", $contenido, $c['fecha_cita']);
@@ -56,6 +57,7 @@ switch ($tipo) {
             foreach ($confirmadas as $c) {
                 $contenido = "
                     <b>Hora:</b> {$c['hora']}<br>
+                    <b>Hora de fin:</b> {$c['horaFin']}<br>
                     <b>Paciente:</b> {$c['nombre_paciente']}<br>
                     <b>Odontólogo:</b> {$c['nombre_odontologo']}<br>
 
@@ -69,19 +71,32 @@ switch ($tipo) {
         break;
 
     case "atendidos":
-        $atendidos = ControladorCitas::ctrPacientesAtendidos($desde, $hasta);
-        if (!empty($atendidos)) {
-            foreach ($atendidos as $a) {
-                $contenido = "
-                    <b>Odontólogo:</b> {$a['nombre_odontologo']}<br>
-                    <b>Total pacientes atendidos:</b> {$a['total_atendidos']}
-                ";
-                echo generarTarjeta("Atención Odontológica", $contenido);
+    $atendidos = ControladorCitas::ctrPacientesAtendidos($desde, $hasta);
+
+    if (!empty($atendidos)) {
+        // Contador de pacientes por odontólogo
+        $totales = [];
+        foreach ($atendidos as $a) {
+            $odontologo = $a['nombre_odontologo'];
+            if (!isset($totales[$odontologo])) {
+                $totales[$odontologo] = 0;
             }
-        } else {
-            echo "<div class='col-12'><div class='alert alert-info text-center'>No se registran pacientes atendidos.</div></div>";
+            $totales[$odontologo]++;
         }
-        break;
+
+        // Mostrar tarjetas
+        foreach ($totales as $odontologo => $total) {
+            $contenido = "
+                <b>Odontólogo:</b> {$odontologo}<br>
+                <b>Total pacientes atendidos:</b> {$total}
+            ";
+            echo generarTarjeta("Atención Odontológica", $contenido);
+        }
+
+    } else {
+        echo "<div class='col-12'><div class='alert alert-info text-center'>No se registran pacientes atendidos.</div></div>";
+    }
+    break;
 
     case "canceladas":
         $canceladas = ControladorCitas::ctrCitasCanceladas($desde, $hasta);
@@ -100,27 +115,100 @@ switch ($tipo) {
         }
         break;
 
-    case "porDia":
-        $porDia = ControladorCitas::ctrCitasPorDia($desde, $hasta);
-        if (!empty($porDia)) {
-            foreach ($porDia as $d) {
-                echo generarTarjeta("Resumen Diario", "<b>Total citas:</b> {$d['cantidad']}", $d['fecha_cita']);
-            }
-        } else {
-            echo "<div class='col-12'><div class='alert alert-info text-center'>No se registran citas en este rango.</div></div>";
-        }
-        break;
+   case "porDia":
+    $porDia = ControladorCitas::ctrCitasPorDia($desde, $hasta);
 
-    case "porOdontologo":
-        $odontologos = ControladorCitas::ctrCitasPorOdontologo($desde, $hasta);
-        if (!empty($odontologos)) {
-            foreach ($odontologos as $o) {
-                echo generarTarjeta("{$o['nombre_odontologo']}", "<b>Citas asignadas:</b> {$o['cantidad']}");
+    if (!empty($porDia)) {
+        foreach ($porDia as $d) {
+            // Detalle por odontólogo
+            $detalleOdontologos = '';
+            if (!empty($d['odontologos'])) {
+                foreach ($d['odontologos'] as $o) {
+                    $detalleOdontologos .= "<b>{$o['nombre']}:</b> {$o['cantidad']}<br>";
+                }
             }
-        } else {
-            echo "<div class='col-12'><div class='alert alert-info text-center'>Sin registros de citas por odontólogo.</div></div>";
+
+            // Detalle por estado
+            $detalleEstados = '';
+            if (!empty($d['estados'])) {
+                foreach ($d['estados'] as $estado => $cantidad) {
+                    $detalleEstados .= "<b>" . ucfirst($estado) . ":</b> {$cantidad}<br>";
+                }
+            }
+
+            $contenido = "
+                <b>Total citas:</b> {$d['cantidad']}<br><br>
+                <b>Por Odontólogo:</b><br>{$detalleOdontologos}<br>
+                <b>Por Estado:</b><br>{$detalleEstados}
+            ";
+
+            echo generarTarjeta("Resumen Diario", $contenido, $d['fecha_cita']);
         }
-        break;
+    } else {
+        echo "<div class='col-12'><div class='alert alert-info text-center'>No se registran citas en este rango.</div></div>";
+    }
+    break;
+
+   case "porOdontologo":
+    $odontologos = ControladorCitas::ctrCitasPorOdontologo($desde, $hasta);
+
+    if (!empty($odontologos)) {
+        // Agrupar por odontólogo
+        $resumen = [];
+
+        foreach ($odontologos as $o) {
+            $nombre = $o['nombre_odontologo'];
+            $fecha = $o['fecha_cita'];
+            $estado = $o['estado'];
+
+            if (!isset($resumen[$nombre])) {
+                $resumen[$nombre] = [
+                    'cantidad' => 0,
+                    'por_estado' => [],
+                    'por_fecha' => []
+                ];
+            }
+
+            $resumen[$nombre]['cantidad']++;
+
+            // Agrupar por estado
+            if (!isset($resumen[$nombre]['por_estado'][$estado])) {
+                $resumen[$nombre]['por_estado'][$estado] = 0;
+            }
+            $resumen[$nombre]['por_estado'][$estado]++;
+
+            // Agrupar por fecha
+            if (!isset($resumen[$nombre]['por_fecha'][$fecha])) {
+                $resumen[$nombre]['por_fecha'][$fecha] = 0;
+            }
+            $resumen[$nombre]['por_fecha'][$fecha]++;
+        }
+
+        // Mostrar tarjetas
+        foreach ($resumen as $nombre => $info) {
+            $detalleEstados = '';
+            foreach ($info['por_estado'] as $estado => $cantidad) {
+                $detalleEstados .= '<b>' . ucfirst($estado) . ':</b> ' . $cantidad . '<br>';
+            }
+
+            $detalleFechas = '';
+            foreach ($info['por_fecha'] as $fecha => $cantidad) {
+                $detalleFechas .= '<b>' . $fecha . ':</b> ' . $cantidad . ' cita(s)<br>';
+            }
+
+            $contenido = "
+                <b>Citas asignadas:</b> {$info['cantidad']}<br><br>
+                <b>Por Estado:</b><br>{$detalleEstados}<br>
+                <b>Por Día:</b><br>{$detalleFechas}
+            ";
+
+            echo generarTarjeta($nombre, $contenido);
+        }
+
+    } else {
+        echo "<div class='col-12'><div class='alert alert-info text-center'>Sin registros de citas por odontólogo.</div></div>";
+    }
+    break;
 
     case "porServicio":
         $servicios = ControladorCitas::ctrCitasPorServicio($desde, $hasta);

@@ -235,8 +235,8 @@ static public function mdlMostrarCitasFiltradas($tabla, $estado)
 
  // Citas Programadas
     public static function mdlCitasProgramadas($desde = null, $hasta = null){
-        $sql = "SELECT c.idCita, c.fecha AS fecha_cita, c.hora, p.nombre AS nombre_paciente, 
-                       u.nombre AS nombre_odontologo
+        $sql = "SELECT c.idCita, c.fecha AS fecha_cita, c.hora, c.horaFin,c.motivoConsulta, p.nombre AS nombre_paciente, 
+                       CONCAT(u.nombre, ' ', u.apellido) AS nombre_odontologo
                 FROM citas c
                 JOIN pacientes p ON c.idPaciente = p.idPaciente
                 JOIN usuarios u ON c.idUsuarios = u.idUsuarios
@@ -259,7 +259,9 @@ static public function mdlMostrarCitasFiltradas($tabla, $estado)
         $sql = $sql = "SELECT 
             c.idCita, 
             c.fecha AS fecha_cita, 
-            c.hora, 
+            c.hora,
+            c.horaFin,
+            c.motivoConsulta,
             p.nombre AS nombre_paciente, 
             CONCAT(u.nombre, ' ', u.apellido) AS nombre_odontologo
         FROM citas c
@@ -281,83 +283,159 @@ static public function mdlMostrarCitasFiltradas($tabla, $estado)
     }
 
     // Pacientes Atendidos
-    public static function mdlPacientesAtendidos($desde = null, $hasta = null){
-        $sql = "SELECT u.nombre AS nombre_odontologo, COUNT(*) AS total_atendidos
-                FROM citas c
-                JOIN usuarios u ON c.idUsuarios = u.idUsuarios
-                WHERE c.estado = 'atendida'";
-        if($desde && $hasta){
-            $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
-        }
-        $sql .= " GROUP BY u.idUsuarios";
-
-        $stmt = Conexion::conectar()->prepare($sql);
-        if($desde && $hasta){
-            $stmt->bindParam(':desde', $desde);
-            $stmt->bindParam(':hasta', $hasta);
-        }
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+   // Pacientes Atendidos (detalle por odontólogo y paciente)
+public static function mdlPacientesAtendidos($desde = null, $hasta = null){
+    $sql = "SELECT 
+                CONCAT(u.nombre, ' ', u.apellido) AS nombre_odontologo,
+                p.nombre AS nombre_paciente,
+                c.fecha AS fecha_cita
+            FROM citas c
+            JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+            JOIN pacientes p ON c.idPaciente = p.idPaciente
+            WHERE c.estado = 'atendida'";
+    
+    if ($desde && $hasta) {
+        $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
     }
 
-    // Citas Canceladas
-    public static function mdlCitasCanceladas($desde = null, $hasta = null){
-        $sql = "SELECT c.idCita, c.fecha AS fecha_cita, c.hora, p.nombre AS nombre_paciente, 
-                       c.motivoConsulta AS motivo_cancelacion
-                FROM citas c
-                JOIN pacientes p ON c.idPaciente = p.idPaciente
-                WHERE c.estado = 'cancelada'";
-        if($desde && $hasta){
-            $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
-        }
+    $sql .= " ORDER BY u.nombre, c.fecha";
 
-        $stmt = Conexion::conectar()->prepare($sql);
-        if($desde && $hasta){
-            $stmt->bindParam(':desde', $desde);
-            $stmt->bindParam(':hasta', $hasta);
-        }
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $stmt = Conexion::conectar()->prepare($sql);
+    
+    if ($desde && $hasta) {
+        $stmt->bindParam(':desde', $desde);
+        $stmt->bindParam(':hasta', $hasta);
     }
+
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+
+   // Citas Canceladas
+public static function mdlCitasCanceladas($desde = null, $hasta = null){
+    $sql = "SELECT 
+                c.idCita, 
+                c.fecha AS fecha_cita, 
+                c.hora, 
+                p.nombre AS nombre_paciente, 
+                CONCAT(u.nombre, ' ', u.apellido) AS nombre_odontologo,
+                c.motivoConsulta AS motivo_cancelacion
+            FROM citas c
+            JOIN pacientes p ON c.idPaciente = p.idPaciente
+            JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+            WHERE c.estado = 'cancelada'";
+    
+    if($desde && $hasta){
+        $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
+    }
+
+    $stmt = Conexion::conectar()->prepare($sql);
+    
+    if($desde && $hasta){
+        $stmt->bindParam(':desde', $desde);
+        $stmt->bindParam(':hasta', $hasta);
+    }
+    
+    $stmt->execute();
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
 
     // Citas por Día
     public static function mdlCitasPorDia($desde = null, $hasta = null){
-        $sql = "SELECT c.fecha AS fecha_cita, COUNT(*) AS cantidad
-                FROM citas c
-                WHERE 1";
-        if($desde && $hasta){
-            $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
-        }
-        $sql .= " GROUP BY c.fecha ORDER BY c.fecha ASC";
-
-        $stmt = Conexion::conectar()->prepare($sql);
-        if($desde && $hasta){
-            $stmt->bindParam(':desde', $desde);
-            $stmt->bindParam(':hasta', $hasta);
-        }
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    $sql = "SELECT c.fecha AS fecha_cita, COUNT(*) AS cantidad
+            FROM citas c
+            WHERE 1";
+    if($desde && $hasta){
+        $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
     }
+    $sql .= " GROUP BY c.fecha ORDER BY c.fecha ASC";
+
+    $stmt = Conexion::conectar()->prepare($sql);
+    if($desde && $hasta){
+        $stmt->bindParam(':desde', $desde);
+        $stmt->bindParam(':hasta', $hasta);
+    }
+    $stmt->execute();
+    $fechas = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Ahora agregamos odontólogos y estados por cada fecha
+    foreach ($fechas as &$f) {
+        // Odontólogos
+        $stmtO = Conexion::conectar()->prepare("
+            SELECT CONCAT(u.nombre,' ',u.apellido) AS nombre, COUNT(*) AS cantidad
+            FROM citas c
+            JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+            WHERE c.fecha = :fecha
+            GROUP BY u.idUsuarios
+        ");
+        $stmtO->bindParam(':fecha', $f['fecha_cita']);
+        $stmtO->execute();
+        $f['odontologos'] = $stmtO->fetchAll(PDO::FETCH_ASSOC);
+
+        // Estados
+        $stmtE = Conexion::conectar()->prepare("
+            SELECT c.estado, COUNT(*) AS cantidad
+            FROM citas c
+            WHERE c.fecha = :fecha
+            GROUP BY c.estado
+        ");
+        $stmtE->bindParam(':fecha', $f['fecha_cita']);
+        $stmtE->execute();
+        $estados = $stmtE->fetchAll(PDO::FETCH_ASSOC);
+
+        $f['estados'] = [];
+        foreach ($estados as $e) {
+            $f['estados'][$e['estado']] = $e['cantidad'];
+        }
+    }
+
+    return $fechas;
+}
+
 
     // Citas por Odontólogo
     public static function mdlCitasPorOdontologo($desde = null, $hasta = null){
-        $sql = "SELECT u.nombre AS nombre_odontologo, COUNT(*) AS cantidad
-                FROM citas c
-                JOIN usuarios u ON c.idUsuarios = u.idUsuarios
-                WHERE 1";
-        if($desde && $hasta){
-            $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
-        }
-        $sql .= " GROUP BY u.idUsuarios";
+    $sql = "SELECT 
+                u.nombre AS nombre_odontologo,
+                c.fecha AS fecha_cita,
+                c.estado
+            FROM citas c
+            JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+            WHERE 1";
 
-        $stmt = Conexion::conectar()->prepare($sql);
-        if($desde && $hasta){
-            $stmt->bindParam(':desde', $desde);
-            $stmt->bindParam(':hasta', $hasta);
-        }
-        $stmt->execute();
-        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    if($desde && $hasta){
+        $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
     }
+
+    $sql .= " ORDER BY u.nombre, c.fecha";
+
+    $stmt = Conexion::conectar()->prepare($sql);
+    if($desde && $hasta){
+        $stmt->bindParam(':desde', $desde);
+        $stmt->bindParam(':hasta', $hasta);
+    }
+
+    $stmt->execute();
+    $result = $stmt->fetchAll(PDO::FETCH_ASSOC);
+
+    // Contar total de citas por odontólogo
+    $totales = [];
+    foreach ($result as $r) {
+        $totales[$r['nombre_odontologo']] = isset($totales[$r['nombre_odontologo']]) 
+            ? $totales[$r['nombre_odontologo']] + 1 
+            : 1;
+    }
+
+    // Añadir total a cada fila
+    foreach ($result as &$r) {
+        $r['cantidad_total'] = $totales[$r['nombre_odontologo']];
+    }
+
+    return $result;
+}
+
 
     // Citas por Servicio
     public static function mdlCitasPorServicio($desde = null, $hasta = null){
