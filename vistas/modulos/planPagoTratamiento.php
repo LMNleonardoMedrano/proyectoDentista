@@ -59,6 +59,9 @@
                         case 'qr de recibo':
                           $badgeClass = 'badge bg-primary';
                           break;
+                            case 'yape':
+                          $badgeClass = 'badge bg-primary';
+                          break;
                         default:
                           $badgeClass = 'badge bg-secondary';
                           break;
@@ -157,7 +160,7 @@
                           <?php
                           $tiposPago = ControladorPlanPago::ctrMostrarTiposPago();
                           foreach ($tiposPago as $tipoPago) {
-                            if ($tipoPago["nombreTipoPago"] === "QR de recibo" || $tipoPago["nombreTipoPago"] === "Pago en efectivo") {
+                            if ($tipoPago["nombreTipoPago"] === "QR de recibo" || $tipoPago["nombreTipoPago"] === "Pago en efectivo" || $tipoPago["nombreTipoPago"] === "Yape") {
                               echo '<option value="' . $tipoPago["codTipoPago"] . '">' . $tipoPago["nombreTipoPago"] . '</option>';
                             }
                           }
@@ -193,10 +196,11 @@
 
 
                     </div>
-                    <!-- Imagen del QR, inicialmente oculta -->
-                    <div id="contenedorQR" style="margin-top:10px; display:none;">
-                      <img src="vistas/img/usuarios/default/anonymous.png" alt="QR de pago" style="width:150px; height:150px;">
-                    </div>
+       <!-- Imagen del QR, inicialmente oculta -->
+<div id="contenedorQR" style="margin-top:10px; display:none; text-align:center;">
+  <img id="imagenQRPago" src="" alt="QR de pago" style="width:150px; height:150px; display:block; margin:0 auto;">
+  <p style="font-size:12px; margin-top:8px;">Escaneá con tu app bancaria para pagar</p>
+</div>
 
                   </div>
 
@@ -280,6 +284,11 @@
 
         </div>
       </div>
+
+
+      <script>
+        
+      </script>
       <!-- Modal Editar Plan de Pago -->
       <div id="modalEditarPlanPago" class="modal fade" role="dialog">
         <div class="modal-dialog modal-xl" role="document">

@@ -126,8 +126,35 @@ $(document).on("click", ".seleccionar-tratamiento", function(){
   // Resaltar tratamiento seleccionado
   $(".seleccionar-tratamiento").removeClass("active bg-success text-white");
   $(this).addClass("active bg-success text-white");
+
+  // Verificar tipo de pago
+  let tipoPagoTexto = $("#nuevoTipoPago option:selected").text().trim().toLowerCase();
+  let app = tipoPagoTexto === "yape" ? "yape" : "qr";
+
+  if ((tipoPagoTexto === "qr de recibo" || tipoPagoTexto === "yape") && saldoTratamiento > 0) {
+    let qrURL = `vistas/modulos/qrPagoDirecto.php?idTratamiento=${idTratamiento}&monto=${saldoTratamiento.toFixed(2)}&app=${app}`;
+    $("#imagenQRPago").attr("src", qrURL);
+    $("#contenedorQR").show();
+  } else {
+    $("#contenedorQR").hide();
+  }
 });
 
+$("#montoPlan, #nuevoTipoPago").on("input change", function () {
+  let idTratamiento = $("#nuevoTratamiento").val();
+  let monto = parseFloat($("#montoPlan").val());
+  let tipoPagoTexto = $("#nuevoTipoPago option:selected").text().trim().toLowerCase();
+  let app = tipoPagoTexto === "yape" ? "yape" : "qr";
+
+  if (!idTratamiento || isNaN(monto) || monto <= 0 || (tipoPagoTexto !== "qr de recibo" && tipoPagoTexto !== "yape")) {
+    $("#contenedorQR").hide();
+    return;
+  }
+
+  let qrURL = `vistas/modulos/qrPagoDirecto.php?idTratamiento=${idTratamiento}&monto=${monto.toFixed(2)}&app=${app}`;
+  $("#imagenQRPago").attr("src", qrURL);
+  $("#contenedorQR").show();
+});
  // 🔹 Autocompletar con la fecha actual
   window.addEventListener('DOMContentLoaded', () => {
   const fechaInput = document.getElementById('nuevoFecha');
