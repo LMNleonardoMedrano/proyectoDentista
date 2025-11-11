@@ -9,7 +9,7 @@ static public function ctrCrearPlanPago() {
 
         // Validaciones de los campos
         if (
-            preg_match('/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ ]+$/', $_POST["nuevoDescripcion"]) &&
+            preg_match('/^[a-zA-Z0-9ñÑáéíóúÁÉÍÓÚ.,()¡!¿?":;\- ]+$/', $_POST["nuevoDescripcion"]) &&
             is_numeric($_POST["nuevoDescuento"]) &&
             preg_match('/^\d{4}-\d{2}-\d{2}$/', $_POST["nuevoFecha"]) &&
             is_numeric($_POST["nuevoMonto"]) &&

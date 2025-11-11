@@ -16,11 +16,22 @@ function tienePermiso($modulo)
     <div class="app-sidebar colored" style="position: fixed; height: 100vh; overflow-y: auto;">
       <div class="sidebar-header d-flex align-items-center justify-content-between p-3">
         <a class="header-brand d-flex align-items-center" href="inicio" aria-label="Ir al inicio">
-          <div class="logo-img">
-            <img src="vistas/src/img/logo.png" class="header-brand-img" alt="Dental Logo" />
-          </div>
-          <span class="text ml-2" style="font-family: cursive;">𝓓𝓮𝓷𝓽𝓪𝓵</span>
-        </a>
+  <div class="logo-img">
+    <img src="vistas/src/img/logo7.svg" class="header-brand-img" alt="Dental Logo" style="width: 150px; height: 50px;" />
+  </div>
+</a>
+<style>
+  .header-brand {
+  padding-left: 5px;
+  height: 60px;
+}
+
+.logo-img {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+</style>
         <button type="button" class="nav-toggle btn btn-light" aria-label="Expandir menú">
           <i data-toggle="expanded" class="ik ik-toggle-right toggle-icon"></i>
         </button>

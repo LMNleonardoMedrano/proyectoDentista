@@ -28,7 +28,7 @@ if (!isset($_SESSION['permisos'])) {
   <meta name="keywords" content="" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
 
-  <link rel="icon" href="vistas/src/img/down-arrow.svg" type="image/x-icon" />
+  <link rel="icon" href="vistas/src/img/logo2.svg" type="image/x-icon" />
 
   <link href="https://fonts.googleapis.com/css?family=Nunito+Sans:300,400,600,700,800" rel="stylesheet" />
 

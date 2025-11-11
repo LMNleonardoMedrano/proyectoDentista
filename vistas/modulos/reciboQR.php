@@ -52,7 +52,7 @@ if (isset($_GET['codPlan'])) {
         $token = hash('sha256', $codPlan . $claveSecreta);
         $linkQR = "http://192.168.100.83/dentista/vistas/modulos/reciboQR.php?codPlan=$codPlan&token=$token";
 
-        QRcode::png($linkQR, null, QR_ECLEVEL_L, 4); // tamaño QR más grande
+        QRcode::png($linkQR, null, QR_ECLEVEL_L, 6); // QR más grande
         $qrImage = base64_encode(ob_get_clean());
 
         echo '
@@ -89,17 +89,24 @@ if (isset($_GET['codPlan'])) {
                 margin-bottom: 10px;
             }
             .logo {
-                font-weight: bold;
+                flex: 0 0 auto;
+                display: flex;
+                align-items: center;
+            }
+            .logo img {
+                width: 190px; /* Cambia este valor para agrandar o achicar */
+                height: auto;
             }
             .titulo {
                 text-align: center;
                 flex: 1;
-                font-size: 18px;
+                font-size: 20px;
                 font-weight: bold;
             }
             .datos-recibo {
                 text-align: right;
                 font-size: 12px;
+                flex: 0 0 auto;
             }
             .campo {
                 margin: 10px 0;
@@ -125,7 +132,7 @@ if (isset($_GET['codPlan'])) {
                 display: flex;
                 justify-content: space-between;
                 align-items: center;
-                margin-top: 50px;
+                margin-top: 40px;
             }
             .firmas-qr .firma {
                 text-align: center;
@@ -135,7 +142,7 @@ if (isset($_GET['codPlan'])) {
                 font-size: 13px;
             }
             .firmas-qr .qr {
-                width: 30%;
+                width: 20%;
                 text-align: center;
                 display: flex;
                 flex-direction: column;
@@ -160,7 +167,6 @@ if (isset($_GET['codPlan'])) {
                 font-size: 40px;
                 font-weight: bold;
                 color: rgba(0, 0, 255, 0.2);
-                border: 4px solid rgba(0, 0, 255, 0.3);
                 padding: 10px 30px;
             }
             @media print {
@@ -176,7 +182,9 @@ if (isset($_GET['codPlan'])) {
 
         <div class="recibo">
             <div class="header">
-                <div class="logo"></div>
+                <div class="logo">
+                    <img src="/dentista/vistas/src/img/logo7.5.png" alt="Logo Clínica">
+                </div>
                 <div class="titulo">CLÍNICA DENTAL DENTANI</div>
                 <div class="datos-recibo">
                     <div><strong>N°:</strong> ' . str_pad($codPlan, 5, "0", STR_PAD_LEFT) . '</div>
