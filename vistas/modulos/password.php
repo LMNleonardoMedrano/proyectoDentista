@@ -34,9 +34,9 @@
                             $actualizarPassword->ctrActualizarPassword();
                             ?>
                     </form>
-                    <div class="register text-center mt-3">
-                        <p>New to our clinic? <a href="register.html">Create a New Account</a></p>
-                    </div>
+                    <!-- <div class="register text-center mt-3">
+                        <p>¿Eres nuevo en nuestra clínica?  <a href="register.html">Crea una cuenta nueva.</a></p>
+                    </div> -->
                 </div>
             </div>
         </div>

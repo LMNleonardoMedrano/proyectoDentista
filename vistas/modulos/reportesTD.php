@@ -13,6 +13,7 @@ require_once $_SERVER['DOCUMENT_ROOT'] . '/dentista/modelos/planPagoTratamiento.
 
 $citas = ControladorCitas::ctrMostrarCitas();
 $tratamientos = ControladorTratamiento::ctrMostrarTratamientosPendientes();
+$pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
 ?>
 
 <div class="wrapper">
@@ -40,6 +41,11 @@ $tratamientos = ControladorTratamiento::ctrMostrarTratamientosPendientes();
                 Pagos
               </a>
             </li>
+            <li class="nav-item">
+              <a class="nav-link" id="historial-tab" data-toggle="tab" href="#historial" role="tab">
+                <i class="fa fa-file-text-o"></i> Historial Clínico
+              </a>
+            </li>
           </ul>
 
           <!-- ===================== -->
@@ -47,7 +53,9 @@ $tratamientos = ControladorTratamiento::ctrMostrarTratamientosPendientes();
           <!-- ===================== -->
           <div class="tab-content" id="reportTabsContent">
 
-            <!-- ============ TAB CITAS ============ -->
+            <!-- ===================== -->
+            <!-- TAB CITAS -->
+            <!-- ===================== -->
             <div class="tab-pane fade show active" id="citas" role="tabpanel">
               <h2 class="text-center mb-4">Reporte de Citas</h2>
 
@@ -115,12 +123,13 @@ $tratamientos = ControladorTratamiento::ctrMostrarTratamientosPendientes();
                 }
 
                 const url = `vistas/modulos/reportesCitas.php?tipoReporteCitas=${tipo}&desdeCitas=${desde}&hastaCitas=${hasta}&exportarPDF=1`;
-
-                window.open(url, "_blank"); // abre el PDF en otra pestaña
+                window.open(url, "_blank");
               });
             </script>
 
-            <!-- ============ TAB TRATAMIENTOS ============ -->
+            <!-- ===================== -->
+            <!-- TAB TRATAMIENTOS -->
+            <!-- ===================== -->
             <div class="tab-pane fade" id="tratamientos" role="tabpanel">
               <h2 class="text-center mb-4">Reporte de Tratamientos</h2>
 
@@ -189,11 +198,13 @@ $tratamientos = ControladorTratamiento::ctrMostrarTratamientosPendientes();
                 }
 
                 const url = `vistas/modulos/reportesTratamientos.php?tipoReporteTratamientos=${tipo}&desdeTrat=${desde}&hastaTrat=${hasta}&exportarPDF=1`;
-
-                window.open(url, "_blank"); // abre el PDF en otra pestaña
+                window.open(url, "_blank");
               });
             </script>
-            <!-- ============ TAB PAGOS ============ -->
+
+            <!-- ===================== -->
+            <!-- TAB PAGOS -->
+            <!-- ===================== -->
             <div class="tab-pane fade" id="pagos" role="tabpanel">
               <h2 class="text-center mb-4">Reporte de Pagos</h2>
 
@@ -263,15 +274,120 @@ $tratamientos = ControladorTratamiento::ctrMostrarTratamientosPendientes();
                 }
 
                 const url = `vistas/modulos/reportesPagos.php?tipoReporte=${tipo}&desde=${desde}&hasta=${hasta}`;
-
-                window.open(url, "_blank"); // abre el PDF en otra pestaña
+                window.open(url, "_blank");
               });
             </script>
+<!-- ===================== -->
+<!-- TAB HISTORIAL CLÍNICO -->
+<!-- ===================== -->
+<div class="tab-pane fade" id="historial" role="tabpanel">
+  <h2 class="text-center mb-4">Historial Clínico del Paciente</h2>
+
+  <!-- Fila principal con buscador y botones alineados -->
+  <div class="d-flex justify-content-between align-items-center mb-3 flex-wrap">
+    
+    <!-- Buscador -->
+    <div class="flex-grow-1 me-3 position-relative" style="max-width: 500px;">
+      <input type="text" id="buscarHistorial" class="form-control" placeholder="🔍 Buscar paciente por nombre o CI..." autocomplete="off">
+      <!-- Contenedor para sugerencias -->
+      <div id="sugerenciasHistorial" class="list-group position-absolute w-100" style="z-index:1000; max-height:200px; overflow-y:auto;"></div>
+    </div>
+
+    <!-- Botones -->
+    <div class="text-end">
+      <button id="btnVerHistorial" class="btn btn-primary me-2">
+        <i class="fa fa-eye"></i> Ver Historial
+      </button>
+      <button id="btnExportarHistorialPDF" class="btn btn-danger">
+        <i class="fa fa-file-pdf-o"></i> Exportar PDF
+      </button>
+    </div>
+
+  </div>
+
+  <!-- Contenedor del historial -->
+  <div id="contenedorHistorial" class="bg-light p-3 rounded shadow-sm" style="max-height:500px; overflow-y:auto;">
+    <div class="alert alert-info text-center mb-0">
+      Haga clic en "Ver Historial" para mostrar los resultados.
+    </div>
+  </div>
+</div>
+
+<script>
+const inputBusqueda = document.getElementById('buscarHistorial');
+const contenedorSugerencias = document.createElement('div');
+contenedorSugerencias.id = 'sugerenciasHistorial';
+contenedorSugerencias.className = 'list-group position-absolute w-100';
+contenedorSugerencias.style.zIndex = '1000';
+contenedorSugerencias.style.maxHeight = '200px';
+contenedorSugerencias.style.overflowY = 'auto';
+inputBusqueda.parentNode.appendChild(contenedorSugerencias);
+
+// Guardamos el CI real seleccionado
+let ciSeleccionado = '';
+
+inputBusqueda.addEventListener('input', function() {
+    const query = this.value.trim();
+    ciSeleccionado = ''; // resetear al escribir
+    if (!query) {
+        contenedorSugerencias.innerHTML = '';
+        return;
+    }
+
+    fetch(`ajax/historialClinico.ajax.php?autocompletar=${encodeURIComponent(query)}`)
+        .then(res => res.json())
+        .then(data => {
+            contenedorSugerencias.innerHTML = '';
+            if (data.length === 0) return;
+
+            data.forEach(paciente => {
+                const item = document.createElement('button');
+                item.type = 'button';
+                item.className = 'list-group-item list-group-item-action';
+                item.textContent = `${paciente.nombre} | ${paciente.ci}`;
+                item.dataset.ci = paciente.ci; // guardamos el CI real
+                item.addEventListener('click', function() {
+                    inputBusqueda.value = `${paciente.nombre} | ${paciente.ci}`; // mostrar nombre | CI
+                    ciSeleccionado = this.dataset.ci; // guardamos CI para buscar
+                    contenedorSugerencias.innerHTML = '';
+                });
+                contenedorSugerencias.appendChild(item);
+            });
+        });
+});
+
+// Cerrar sugerencias si hace click fuera del input
+document.addEventListener('click', function(e) {
+    if (!inputBusqueda.contains(e.target) && !contenedorSugerencias.contains(e.target)) {
+        contenedorSugerencias.innerHTML = '';
+    }
+});
+
+// Modificar los botones para usar el CI real
+document.getElementById('btnVerHistorial').addEventListener('click', function() {
+    const pacienteID = ciSeleccionado || inputBusqueda.value.trim();
+    if (!pacienteID) return alert('Ingrese un nombre o CI para buscar');
+
+    fetch(`ajax/historialClinico.ajax.php?busqueda=${encodeURIComponent(pacienteID)}`)
+      .then(res => res.text())
+      .then(html => { 
+          document.getElementById('contenedorHistorial').innerHTML = html; 
+      });
+});
+
+document.getElementById('btnExportarHistorialPDF').addEventListener('click', function() {
+    const pacienteID = ciSeleccionado || inputBusqueda.value.trim();
+    if (!pacienteID) return alert('Ingrese un nombre o CI antes de exportar el PDF.');
+
+    window.open(`vistas/modulos/historialClinico.pdf.php?idPaciente=${encodeURIComponent(pacienteID)}`, '_blank');
+});
+</script>
+
+
           </div> <!-- FIN TAB-CONTENT -->
 
       </div>
       </section>
     </div>
   </div>
-</div>
 </div>

@@ -66,13 +66,13 @@ if (isset($_GET['codPlan'])) {
                 font-family: Arial, sans-serif;
                 background: #fff;
                 width: 21.6cm;
-                height: 14cm;
+                height: 15cm;
                 margin: 0 auto;
                 padding: 25px 40px;
                 color: #000;
             }
             .recibo {
-                border: 1px solid #000;
+                border: 3.5px solid #2dce89;
                 padding: 50px 25px;
                 height: 100%;
                 position: relative;
