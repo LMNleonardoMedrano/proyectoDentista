@@ -35,7 +35,7 @@ if ($busqueda === '') {
     exit;
 }
 
-// 1. Buscar paciente por nombre o CI
+// 1. Buscar paciente
 $stmtPaciente = Conexion::conectar()->prepare("
     SELECT p.*, pm.nombrePT AS tutor, pm.relacion
     FROM pacientes p
@@ -53,9 +53,9 @@ if (!$paciente) {
 
 $idPaciente = $paciente['idPaciente'];
 
-// 2. Historial de citas
+// 2. Citas
 $citas = Conexion::conectar()->prepare("
-    SELECT c.*, u.nombre AS odontologo
+    SELECT c.*, CONCAT(u.nombre, ' ', u.apellido) AS odontologo
     FROM citas c
     INNER JOIN usuarios u ON u.idUsuarios = c.idUsuarios
     WHERE c.idPaciente = :id
@@ -64,9 +64,9 @@ $citas = Conexion::conectar()->prepare("
 $citas->execute(['id' => $idPaciente]);
 $citasHistorial = $citas->fetchAll(PDO::FETCH_ASSOC);
 
-// 3. Tratamientos y servicios
+// 3. Tratamientos
 $tratamientos = Conexion::conectar()->prepare("
-    SELECT t.*, u.nombre AS odontologo
+    SELECT t.*, CONCAT(u.nombre, ' ', u.apellido) AS odontologo
     FROM tratamiento t
     INNER JOIN usuarios u ON u.idUsuarios = t.idUsuarios
     WHERE t.idPaciente = :id
@@ -75,7 +75,7 @@ $tratamientos = Conexion::conectar()->prepare("
 $tratamientos->execute(['id' => $idPaciente]);
 $tratamientosHistorial = $tratamientos->fetchAll(PDO::FETCH_ASSOC);
 
-// 4. Medicamentos por tratamiento
+// 4. Medicamentos
 $medicamentos = Conexion::conectar()->prepare("
     SELECT dm.*, m.nombre AS medicamento
     FROM detallemedicamento dm
@@ -86,7 +86,7 @@ $medicamentos = Conexion::conectar()->prepare("
 $medicamentos->execute(['id' => $idPaciente]);
 $medicamentosHistorial = $medicamentos->fetchAll(PDO::FETCH_ASSOC);
 
-// 5. Pagos realizados
+// 5. Pagos
 $pagos = Conexion::conectar()->prepare("
     SELECT pp.*, tp.nombreTipoPago
     FROM planpagotratamiento pp
@@ -98,89 +98,176 @@ $pagos->execute(['id' => $idPaciente]);
 $pagosHistorial = $pagos->fetchAll(PDO::FETCH_ASSOC);
 
 // ==============================
-// GENERAR HTML DEL HISTORIAL
+// DISEÑO HTML DEL HISTORIAL
 // ==============================
-echo "<div class='historial-row p-3 bg-white rounded shadow-sm mb-3'>";
-
-// Datos del paciente
-echo "<h4>🧍 Datos del Paciente</h4>";
-echo "<p><b>Nombre:</b> {$paciente['nombre']}</p>";
-echo "<p><b>DNI/CI:</b> {$paciente['ci']}</p>";
-echo "<p><b>Fecha de nacimiento:</b> {$paciente['fechaNac']}</p>";
-echo "<p><b>Teléfono:</b> {$paciente['telCel']}</p>";
-echo "<p><b>Dirección:</b> {$paciente['domicilio']}</p>";
-echo "<p><b>Sexo:</b> {$paciente['genero']}</p>";
-if($paciente['tutor']){
-    echo "<p><b>Tutor:</b> {$paciente['tutor']} ({$paciente['relacion']})</p>";
-}
-
-// Historial de citas
-echo "<h4>📅 Historial de Citas</h4>";
-if(count($citasHistorial) > 0){
-    echo "<ul>";
-    foreach($citasHistorial as $cita){
-        echo "<li>{$cita['fecha']} - {$cita['hora']} | {$cita['motivoConsulta']} | Odontólogo: {$cita['odontologo']} | Estado: {$cita['estado']}</li>";
-    }
-    echo "</ul>";
-}else{
-    echo "<p>No hay citas registradas.</p>";
-}
-
-// Tratamientos y servicios
-echo "<h4>🦷 Tratamientos</h4>";
-if(count($tratamientosHistorial) > 0){
-    foreach($tratamientosHistorial as $t){
-        echo "<p><b>Fecha:</b> {$t['fechaRegistro']} | Odontólogo: {$t['odontologo']} | Total: {$t['totalPago']} | Saldo: {$t['saldo']} | Estado: {$t['estado']}</p>";
-
-        // Servicios por tratamiento
-        $servs = Conexion::conectar()->prepare("
-            SELECT s.nombreServicio
-            FROM detalletratamientoservicios dts
-            INNER JOIN servicios s ON s.idServicio = dts.idServicio
-            WHERE dts.idTratamiento = :idTratamiento
-        ");
-        $servs->execute(['idTratamiento'=>$t['idTratamiento']]);
-        $servicios = $servs->fetchAll(PDO::FETCH_ASSOC);
-        $servStr = implode(", ", array_column($servicios,'nombreServicio'));
-        echo "<p><b>Servicios realizados:</b> $servStr</p>";
-    }
-}else{
-    echo "<p>No hay tratamientos registrados.</p>";
-}
-
-// Medicamentos
-echo "<h4>💊 Medicamentos Recetados</h4>";
-if(count($medicamentosHistorial) > 0){
-    foreach($medicamentosHistorial as $m){
-        echo "<p>{$m['medicamento']} | Dosis: {$m['dosis']} | Inicio: {$m['fechaInicio']} | Fin: {$m['fechaFinal']} | Obs: {$m['observacion']}</p>";
-    }
-}else{
-    echo "<p>No hay medicamentos recetados.</p>";
-}
-
-// Pagos
-echo "<h4>💰 Pagos Realizados</h4>";
-if(count($pagosHistorial) > 0){
-    foreach($pagosHistorial as $p){
-        echo "<p>{$p['fecha']} | Monto: {$p['monto']} | Forma: {$p['nombreTipoPago']} | Obs: {$p['descripcion']}</p>";
-    }
-}else{
-    echo "<p>No hay pagos registrados.</p>";
-}
-
-// Resumen final
-$totalTratamientos = count($tratamientosHistorial);
-$totalPagado = array_sum(array_column($pagosHistorial,'monto'));
-$saldoPendiente = array_sum(array_column($tratamientosHistorial,'saldo'));
-$ultimaCita = end($citasHistorial)['fecha'] ?? '-';
-$ultimoTrat = end($tratamientosHistorial)['fechaRegistro'] ?? '-';
-
-echo "<h4>🧩 Resumen Final</h4>";
-echo "<p>Total de tratamientos: $totalTratamientos</p>";
-echo "<p>Total pagado: $totalPagado</p>";
-echo "<p>Saldo pendiente: $saldoPendiente</p>";
-echo "<p>Última cita: $ultimaCita</p>";
-echo "<p>Último tratamiento completado: $ultimoTrat</p>";
-
-echo "</div>";
 ?>
+<style>
+.historial-container {
+    background: #fff;
+    border-radius: 10px;
+    padding: 25px;
+    box-shadow: 0 0 10px rgba(0,0,0,0.1);
+    font-family: 'Segoe UI', sans-serif;
+    color: #333;
+}
+.historial-header {
+    text-align: center;
+    border-bottom: 3px solid #007bff;
+    padding-bottom: 10px;
+    margin-bottom: 20px;
+}
+.historial-header h2 {
+    color: #007bff;
+    font-weight: bold;
+}
+.section {
+    margin-bottom: 25px;
+}
+.section h4 {
+    background: #007bff;
+    color: #fff;
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.table-historial {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 10px;
+}
+.table-historial th, .table-historial td {
+    border: 1px solid #ddd;
+    padding: 8px;
+}
+.table-historial th {
+    background: #f1f1f1;
+    color: #333;
+    text-align: left;
+}
+.summary {
+    background: #f8f9fa;
+    border-left: 5px solid #007bff;
+    padding: 15px;
+    border-radius: 5px;
+}
+</style>
+
+<div class="historial-container">
+    <div class="historial-header">
+        <h2>🩺 Historial Clínico del Paciente</h2>
+    </div>
+
+    <div class="section">
+        <h4>🧍 Datos del Paciente</h4>
+        <p><b>Nombre:</b> <?= $paciente['nombre'] ?></p>
+        <p><b>DNI/CI:</b> <?= $paciente['ci'] ?></p>
+        <p><b>Fecha de nacimiento:</b> <?= $paciente['fechaNac'] ?></p>
+        <p><b>Teléfono:</b> <?= $paciente['telCel'] ?></p>
+        <p><b>Dirección:</b> <?= $paciente['domicilio'] ?></p>
+        <p><b>Sexo:</b> <?= $paciente['genero'] ?></p>
+        <?php if ($paciente['tutor']) : ?>
+            <p><b>Tutor:</b> <?= $paciente['tutor'] ?> (<?= $paciente['relacion'] ?>)</p>
+        <?php endif; ?>
+    </div>
+
+    <div class="section">
+        <h4>📅 Historial de Citas</h4>
+        <?php if (count($citasHistorial) > 0): ?>
+            <table class="table-historial">
+                <tr><th>Fecha</th><th>Hora</th><th>Motivo</th><th>Odontólogo</th><th>Estado</th></tr>
+                <?php foreach ($citasHistorial as $c): ?>
+                    <tr>
+                        <td><?= $c['fecha'] ?></td>
+                        <td><?= $c['hora'] ?></td>
+                        <td><?= $c['motivoConsulta'] ?></td>
+                        <td><?= $c['odontologo'] ?></td>
+                        <td><?= $c['estado'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php else: ?>
+            <p>No hay citas registradas.</p>
+        <?php endif; ?>
+    </div>
+
+    <div class="section">
+        <h4>🦷 Tratamientos</h4>
+        <?php if (count($tratamientosHistorial) > 0): ?>
+            <?php foreach ($tratamientosHistorial as $t): ?>
+                <div style="margin-bottom:10px;">
+                    <b>Fecha:</b> <?= $t['fechaRegistro'] ?> | <b>Odontólogo:</b> <?= $t['odontologo'] ?> |
+                    <b>Total:</b> <?= $t['totalPago'] ?> | <b>Saldo:</b> <?= $t['saldo'] ?> | <b>Estado:</b> <?= $t['estado'] ?><br>
+                    <?php
+                    $servs = Conexion::conectar()->prepare("
+                        SELECT s.nombreServicio
+                        FROM detalletratamientoservicios dts
+                        INNER JOIN servicios s ON s.idServicio = dts.idServicio
+                        WHERE dts.idTratamiento = :idTratamiento
+                    ");
+                    $servs->execute(['idTratamiento' => $t['idTratamiento']]);
+                    $servicios = $servs->fetchAll(PDO::FETCH_ASSOC);
+                    $servStr = implode(", ", array_column($servicios,'nombreServicio'));
+                    ?>
+                    <b>Servicios realizados:</b> <?= $servStr ?>
+                </div>
+            <?php endforeach; ?>
+        <?php else: ?>
+            <p>No hay tratamientos registrados.</p>
+        <?php endif; ?>
+    </div>
+
+    <div class="section">
+        <h4>💊 Medicamentos Recetados</h4>
+        <?php if (count($medicamentosHistorial) > 0): ?>
+            <table class="table-historial">
+                <tr><th>Medicamento</th><th>Dosis</th><th>Inicio</th><th>Fin</th><th>Observación</th></tr>
+                <?php foreach ($medicamentosHistorial as $m): ?>
+                    <tr>
+                        <td><?= $m['medicamento'] ?></td>
+                        <td><?= $m['dosis'] ?></td>
+                        <td><?= $m['fechaInicio'] ?></td>
+                        <td><?= $m['fechaFinal'] ?></td>
+                        <td><?= $m['observacion'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php else: ?>
+            <p>No hay medicamentos recetados.</p>
+        <?php endif; ?>
+    </div>
+
+    <div class="section">
+        <h4>💰 Pagos Realizados</h4>
+        <?php if (count($pagosHistorial) > 0): ?>
+            <table class="table-historial">
+                <tr><th>Fecha</th><th>Monto</th><th>Forma de Pago</th><th>Observación</th></tr>
+                <?php foreach ($pagosHistorial as $p): ?>
+                    <tr>
+                        <td><?= $p['fecha'] ?></td>
+                        <td><?= $p['monto'] ?></td>
+                        <td><?= $p['nombreTipoPago'] ?></td>
+                        <td><?= $p['descripcion'] ?></td>
+                    </tr>
+                <?php endforeach; ?>
+            </table>
+        <?php else: ?>
+            <p>No hay pagos registrados.</p>
+        <?php endif; ?>
+    </div>
+
+    <div class="section summary">
+        <?php
+        $totalTratamientos = count($tratamientosHistorial);
+        $totalPagado = array_sum(array_column($pagosHistorial,'monto'));
+        $saldoPendiente = array_sum(array_column($tratamientosHistorial,'saldo'));
+        $ultimaCita = end($citasHistorial)['fecha'] ?? '-';
+        $ultimoTrat = end($tratamientosHistorial)['fechaRegistro'] ?? '-';
+        ?>
+        <h4>🧩 Resumen Final</h4>
+        <p><b>Total de tratamientos:</b> <?= $totalTratamientos ?></p>
+        <p><b>Total pagado:</b> <?= $totalPagado ?></p>
+        <p><b>Saldo pendiente:</b> <?= $saldoPendiente ?></p>
+        <p><b>Última cita:</b> <?= $ultimaCita ?></p>
+        <p><b>Último tratamiento completado:</b> <?= $ultimoTrat ?></p>
+    </div>
+</div>

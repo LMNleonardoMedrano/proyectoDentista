@@ -1,4 +1,4 @@
-<?php
+<?php 
 require_once '../../vendor/autoload.php';
 require_once '../../controladores/citas.controlador.php';
 require_once '../../modelos/citas.modelo.php';
@@ -20,7 +20,7 @@ $mpdf->SetTitle('Reporte de Citas - ' . ucfirst($tipo));
 $datos = [];
 $tituloReporte = '';
 
-// Según tipo de reporte, obtiene los datos desde el controlador
+// Obtiene los datos según el tipo
 switch ($tipo) {
     case "programadas":
         $datos = ControladorCitas::ctrCitasProgramadas($desde, $hasta);
@@ -66,269 +66,297 @@ switch ($tipo) {
         die("Tipo de reporte no válido.");
 }
 
-// Verifica si hay resultados
 if (empty($datos)) {
     echo "<h3 style='text-align:center;'>No hay datos disponibles para este reporte.</h3>";
     exit;
 }
 
-// Encabezado general del PDF
-$html = '
-<h2 style="text-align:center; font-family: Arial;">REPORTE DE ' . strtoupper($tituloReporte) . '</h2>
-<p style="text-align:center; font-family: Arial; font-size:12px;">Desde: ' . ($desde ?: '-') . ' | Hasta: ' . ($hasta ?: '-') . '</p>
-<br>
-<table style="width:100%; border-collapse:collapse; font-family: Arial; font-size:12px;">
-<thead style="background-color:#007BFF; color:white;">';
+// -------------------------
+// ESTILOS GLOBALES
+// -------------------------
+$stylesheet = "
+    body { font-family: Arial; font-size: 12px; }
+    .header-table { width: 100%; border-bottom: 2px solid #007BFF; margin-bottom: 15px; }
+    .header-table td { vertical-align: middle; }
+    .logo { width: 100px; }
+    .header-title { text-align: center; font-size: 16px; font-weight: bold; color: #007BFF; }
+    .header-fechas { text-align: right; font-size: 11px; color: #555; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 11px; }
+    thead { background: #007BFF; color: white; }
+    th, td { border: 1px solid #ccc; padding: 7px; }
+    tbody tr:nth-child(even) { background: #f7f7f7; }
+    .total { font-weight: bold; text-align: right; margin-top: 10px; font-size: 13px; }
+";
 
-// Genera columnas dinámicas según tipo
+$mpdf->WriteHTML($stylesheet, 1);
+
+// -------------------------
+// ENCABEZADO CON TABLA (LOGO | TÍTULO | FECHAS)
+// -------------------------
+$html = '
+<table class="header-table">
+    <tr>
+        <td style="width:100px;"><img src="../../vistas/src/img/logo7.5.png" class="logo"></td>
+        <td class="header-title">SISTEMA DE GESTIÓN ODONTOLÓGICA</td>
+        <td class="header-fechas">Desde: ' . ($desde ?: '-') . ' | Hasta: ' . ($hasta ?: '-') . '</td>
+    </tr>
+</table>
+
+<h2 style="text-align:center; color:#333;">REPORTE DE ' . strtoupper($tituloReporte) . '</h2>
+
+<table>
+<thead>';
+
+// -------------------------------------------------
+//  COLUMNAS Y TABLAS SEGÚN TIPO
+// -------------------------------------------------
 switch ($tipo) {
+
     case "programadas":
         $html .= '
         <tr>
-            <th style="border:1px solid #ccc; padding:6px;">Fecha</th>
-            <th style="border:1px solid #ccc; padding:6px;">Hora</th>
-            <th style="border:1px solid #ccc; padding:6px;">Hora Fin</th>
-            <th style="border:1px solid #ccc; padding:6px;">Motivo de la Consulta</th>
-            <th style="border:1px solid #ccc; padding:6px;">Paciente</th>
-            <th style="border:1px solid #ccc; padding:6px;">Odontólogo</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Hora Fin</th>
+            <th>Motivo de la Consulta</th>
+            <th>Paciente</th>
+            <th>Odontólogo</th>
         </tr>
         </thead><tbody>';
+
         foreach ($datos as $c) {
-            $html .= '<tr>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['fecha_cita'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['hora'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['horaFin'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['motivoConsulta'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['nombre_paciente'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['nombre_odontologo'] . '</td>
-            </tr>';
+            $html .= "
+            <tr>
+                <td>{$c['fecha_cita']}</td>
+                <td>{$c['hora']}</td>
+                <td>{$c['horaFin']}</td>
+                <td>{$c['motivoConsulta']}</td>
+                <td>{$c['nombre_paciente']}</td>
+                <td>{$c['nombre_odontologo']}</td>
+            </tr>";
         }
         break;
 
     case "confirmadas":
         $html .= '
         <tr>
-             <th style="border:1px solid #ccc; padding:6px;">Fecha</th>
-            <th style="border:1px solid #ccc; padding:6px;">Hora</th>
-            <th style="border:1px solid #ccc; padding:6px;">Hora Fin</th>
-            <th style="border:1px solid #ccc; padding:6px;">Motivo de la Consulta</th>
-            <th style="border:1px solid #ccc; padding:6px;">Paciente</th>
-            <th style="border:1px solid #ccc; padding:6px;">Odontólogo</th>
+            <th>Fecha</th>
+            <th>Hora</th>
+            <th>Hora Fin</th>
+            <th>Motivo</th>
+            <th>Paciente</th>
+            <th>Odontólogo</th>
         </tr>
         </thead><tbody>';
+        
         foreach ($datos as $c) {
-            $html .= '<tr>
-               <td style="border:1px solid #ccc; padding:6px;">' . $c['fecha_cita'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['hora'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['horaFin'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['motivoConsulta'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['nombre_paciente'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['nombre_odontologo'] . '</td>
-            </tr>';
+            $html .= "
+            <tr>
+                <td>{$c['fecha_cita']}</td>
+                <td>{$c['hora']}</td>
+                <td>{$c['horaFin']}</td>
+                <td>{$c['motivoConsulta']}</td>
+                <td>{$c['nombre_paciente']}</td>
+                <td>{$c['nombre_odontologo']}</td>
+            </tr>";
         }
         break;
 
     case "atendidos":
-    $odontologoActual = '';
-$totalOdontologo = 0;
-
-$html .= '
-<tr>
-    <th style="border:1px solid #ccc; padding:6px;">Odontólogo</th>
-    <th style="border:1px solid #ccc; padding:6px;">Paciente</th>
-    <th style="border:1px solid #ccc; padding:6px;">Fecha</th>
-</tr>
-</thead><tbody>';
-
-foreach ($datos as $index => $a) {
-    // Si es un nuevo odontólogo, mostrar su encabezado
-    if ($odontologoActual !== $a['nombre_odontologo']) {
-        $odontologoActual = $a['nombre_odontologo'];
-        $html .= '<tr style="background-color:#f2f2f2; font-weight:bold;">
-            <td colspan="3" style="border:1px solid #ccc; padding:6px;">' . $odontologoActual . '</td>
-        </tr>';
-    }
-
-    // Fila del paciente
-    $html .= '<tr>
-        <td style="border:1px solid #ccc; padding:6px;"></td>
-        <td style="border:1px solid #ccc; padding:6px;">' . $a['nombre_paciente'] . '</td>
-        <td style="border:1px solid #ccc; padding:6px; text-align:center;">' . $a['fecha_cita'] . '</td>
-    </tr>';
-
-    $totalOdontologo++;
-
-    // Si es el último registro o cambia el odontólogo en la siguiente iteración, imprime el total
-    if (!isset($datos[$index + 1]) || $datos[$index + 1]['nombre_odontologo'] !== $odontologoActual) {
-      $html .= '<tr style="background-color:#d1ecf1; font-weight:bold;">
-    <td colspan="2" style="border:1px solid #ccc; padding:6px; text-align:left;">Total atendidos:</td>
-    <td style="border:1px solid #ccc; padding:6px; text-align:right;">' . $totalOdontologo . '</td>
-</tr>';
+        $odontologoActual = '';
         $totalOdontologo = 0;
-    }
-}
-    break;
 
+        $html .= '
+        <tr>
+            <th>Odontólogo</th>
+            <th>Paciente</th>
+            <th>Fecha</th>
+        </tr>
+        </thead><tbody>';
+
+        foreach ($datos as $index => $a) {
+            if ($odontologoActual !== $a['nombre_odontologo']) {
+                $odontologoActual = $a['nombre_odontologo'];
+
+                $html .= '
+                <tr style="background-color:#f2f2f2; font-weight:bold;">
+                    <td colspan="3">' . $odontologoActual . '</td>
+                </tr>';
+            }
+
+            $html .= '
+            <tr>
+                <td></td>
+                <td>' . $a['nombre_paciente'] . '</td>
+                <td style="text-align:center;">' . $a['fecha_cita'] . '</td>
+            </tr>';
+
+            $totalOdontologo++;
+
+            if (!isset($datos[$index + 1]) || $datos[$index + 1]['nombre_odontologo'] !== $odontologoActual) {
+                $html .= '
+                <tr style="background-color:#d1ecf1; font-weight:bold;">
+                    <td colspan="2">Total atendidos:</td>
+                    <td style="text-align:right;">' . $totalOdontologo . '</td>
+                </tr>';
+                $totalOdontologo = 0;
+            }
+        }
+        break;
 
     case "canceladas":
         $html .= '
         <tr>
-            <th style="border:1px solid #ccc; padding:6px;">Paciente</th>
-            <th style="border:1px solid #ccc; padding:6px;">Motivo de Cancelación</th>
-            <th style="border:1px solid #ccc; padding:6px;">Fecha de la cita</th>
-            <th style="border:1px solid #ccc; padding:6px;">odontologo</th>
-            
+            <th>Paciente</th>
+            <th>Motivo de Cancelación</th>
+            <th>Fecha</th>
+            <th>Odontólogo</th>
         </tr>
         </thead><tbody>';
+
         foreach ($datos as $c) {
-            $html .= '<tr>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['nombre_paciente'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['motivo_cancelacion'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px; text-align:center;">' . $c['fecha_cita'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px;">' . $c['nombre_odontologo'] . '</td>
-            </tr>';
+            $html .= "
+            <tr>
+                <td>{$c['nombre_paciente']}</td>
+                <td>{$c['motivo_cancelacion']}</td>
+                <td style='text-align:center;'>{$c['fecha_cita']}</td>
+                <td>{$c['nombre_odontologo']}</td>
+            </tr>";
         }
         break;
 
-   case "porDia":
-    $html .= '
-    <tr>
-        <th style="border:1px solid #ccc; padding:6px;">Fecha</th>
-        <th style="border:1px solid #ccc; padding:6px;">Cantidad</th>
-        <th style="border:1px solid #ccc; padding:6px;">Odontólogos</th>
-        <th style="border:1px solid #ccc; padding:6px;">Estados</th>
-    </tr>
-    </thead><tbody>';
+    case "porDia":
+        $html .= '
+        <tr>
+            <th>Fecha</th>
+            <th>Cantidad</th>
+            <th>Odontólogos</th>
+            <th>Estados</th>
+        </tr>
+        </thead><tbody>';
 
-    foreach ($datos as $d) {
-        // Preparar listado de odontólogos
-        $odontologos = '';
-        if (!empty($d['odontologos'])) {
-            foreach ($d['odontologos'] as $o) {
-                $odontologos .= $o['nombre'] . ' (' . $o['cantidad'] . ')<br>';
+        foreach ($datos as $d) {
+            $odontologos = '';
+            if (!empty($d['odontologos'])) {
+                foreach ($d['odontologos'] as $o) {
+                    $odontologos .= $o['nombre'] . " ({$o['cantidad']})<br>";
+                }
             }
-        }
 
-        // Preparar listado de estados
-        $estados = '';
-        if (!empty($d['estados'])) {
-            foreach ($d['estados'] as $estado => $cantidad) {
-                $estados .= ucfirst($estado) . ' (' . $cantidad . ')<br>';
+            $estados = '';
+            if (!empty($d['estados'])) {
+                foreach ($d['estados'] as $estado => $cant) {
+                    $estados .= ucfirst($estado) . " ($cant)<br>";
+                }
             }
+
+            $html .= "
+            <tr>
+                <td>{$d['fecha_cita']}</td>
+                <td style='text-align:center;'>{$d['cantidad']}</td>
+                <td>{$odontologos}</td>
+                <td>{$estados}</td>
+            </tr>";
+        }
+        break;
+
+    case "porOdontologo":
+        $agrupados = [];
+        foreach ($datos as $o) {
+            $nombre = $o['nombre_odontologo'];
+            $estado = $o['estado'];
+            $fecha = $o['fecha_cita'];
+
+            if (!isset($agrupados[$nombre])) {
+                $agrupados[$nombre] = [
+                    'cantidad' => 0,
+                    'estados' => [],
+                    'por_fecha' => []
+                ];
+            }
+
+            $agrupados[$nombre]['cantidad']++;
+            if (!isset($agrupados[$nombre]['estados'][$estado])) $agrupados[$nombre]['estados'][$estado] = 0;
+            $agrupados[$nombre]['estados'][$estado]++;
+
+            if (!isset($agrupados[$nombre]['por_fecha'][$fecha])) $agrupados[$nombre]['por_fecha'][$fecha] = 0;
+            $agrupados[$nombre]['por_fecha'][$fecha]++;
         }
 
-        $html .= '<tr>
-            <td style="border:1px solid #ccc; padding:6px;">' . $d['fecha_cita'] . '</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:center;">' . $d['cantidad'] . '</td>
-            <td style="border:1px solid #ccc; padding:6px;">' . $odontologos . '</td>
-            <td style="border:1px solid #ccc; padding:6px;">' . $estados . '</td>
-        </tr>';
-    }
-    break;
+        $html .= '
+        <tr>
+            <th>Odontólogo</th>
+            <th>Cantidad</th>
+            <th>Estados</th>
+            <th>Por día</th>
+        </tr>
+        </thead><tbody>';
 
+        foreach ($agrupados as $nombre => $info) {
+            $detalleEstados = '';
+            foreach ($info['estados'] as $estado => $cant) {
+                $detalleEstados .= "<b>" . ucfirst($estado) . ":</b> $cant<br>";
+            }
 
-   case "porOdontologo":
-    // Agrupar los datos por odontólogo
-    $agrupados = [];
+            $detalleFechas = '';
+            foreach ($info['por_fecha'] as $fecha => $cant) {
+                $detalleFechas .= "<b>$fecha:</b> $cant cita(s)<br>";
+            }
 
-    foreach ($datos as $o) {
-        $nombre = $o['nombre_odontologo'];
-        $estado = $o['estado'];
-        $fecha = $o['fecha_cita'];
-
-        if (!isset($agrupados[$nombre])) {
-            $agrupados[$nombre] = [
-                'cantidad' => 0,
-                'estados' => [],
-                'por_fecha' => []
-            ];
+            $html .= "
+            <tr>
+                <td>$nombre</td>
+                <td style='text-align:center;'>{$info['cantidad']}</td>
+                <td>$detalleEstados</td>
+                <td>$detalleFechas</td>
+            </tr>";
         }
-
-        $agrupados[$nombre]['cantidad']++;
-
-        // Agrupar por estado
-        if (!isset($agrupados[$nombre]['estados'][$estado])) {
-            $agrupados[$nombre]['estados'][$estado] = 0;
-        }
-        $agrupados[$nombre]['estados'][$estado]++;
-
-        // Agrupar por fecha
-        if (!isset($agrupados[$nombre]['por_fecha'][$fecha])) {
-            $agrupados[$nombre]['por_fecha'][$fecha] = 0;
-        }
-        $agrupados[$nombre]['por_fecha'][$fecha]++;
-    }
-
-    // Encabezado de la tabla
-    $html .= '
-    <tr>
-        <th style="border:1px solid #ccc; padding:6px;">Odontólogo</th>
-        <th style="border:1px solid #ccc; padding:6px;">Cantidad</th>
-        <th style="border:1px solid #ccc; padding:6px;">Estados</th>
-        <th style="border:1px solid #ccc; padding:6px;">Por día</th>
-    </tr>
-    </thead><tbody>';
-
-    // Filas por odontólogo
-    foreach ($agrupados as $nombre => $info) {
-        $detalleEstados = '';
-        foreach ($info['estados'] as $estado => $cantidad) {
-            $detalleEstados .= '<b>' . ucfirst($estado) . ':</b> ' . $cantidad . '<br>';
-        }
-
-        $detalleFechas = '';
-        foreach ($info['por_fecha'] as $fecha => $cantidad) {
-            $detalleFechas .= '<b>' . $fecha . ':</b> ' . $cantidad . ' cita(s)<br>';
-        }
-
-        $html .= '<tr>
-            <td style="border:1px solid #ccc; padding:6px;">' . $nombre . '</td>
-            <td style="border:1px solid #ccc; padding:6px; text-align:center;">' . $info['cantidad'] . '</td>
-            <td style="border:1px solid #ccc; padding:6px;">' . $detalleEstados . '</td>
-            <td style="border:1px solid #ccc; padding:6px;">' . $detalleFechas . '</td>
-        </tr>';
-    }
-
-    break;
+        break;
 
     case "porServicio":
         $html .= '
         <tr>
-            <th style="border:1px solid #ccc; padding:6px;">Servicio</th>
-            <th style="border:1px solid #ccc; padding:6px;">Cantidad</th>
+            <th>Servicio</th>
+            <th>Cantidad</th>
         </tr>
         </thead><tbody>';
+
         foreach ($datos as $s) {
-            $html .= '<tr>
-                <td style="border:1px solid #ccc; padding:6px;">' . $s['nombre_servicio'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px; text-align:center;">' . $s['cantidad'] . '</td>
-            </tr>';
+            $html .= "
+            <tr>
+                <td>{$s['nombre_servicio']}</td>
+                <td style='text-align:center;'>{$s['cantidad']}</td>
+            </tr>";
         }
         break;
 
     case "mensual":
         $html .= '
         <tr>
-            <th style="border:1px solid #ccc; padding:6px;">Mes / Año</th>
-            <th style="border:1px solid #ccc; padding:6px;">Cantidad</th>
+            <th>Mes / Año</th>
+            <th>Cantidad</th>
         </tr>
         </thead><tbody>';
+
         foreach ($datos as $m) {
-            $html .= '<tr>
-                <td style="border:1px solid #ccc; padding:6px;">' . $m['mes'] . '/' . $m['anio'] . '</td>
-                <td style="border:1px solid #ccc; padding:6px; text-align:center;">' . $m['cantidad'] . '</td>
-            </tr>';
+            $html .= "
+            <tr>
+                <td>{$m['mes']}/{$m['anio']}</td>
+                <td style='text-align:center;'>{$m['cantidad']}</td>
+            </tr>";
         }
         break;
 }
 
-$html .= '
-</tbody></table>
+$html .= "
+</tbody>
+</table>
 
-<br><p style="text-align:right; font-size:11px; color:#555;">
-Generado el ' . date("d/m/Y H:i") . '
-</p>';
-$html .= '<p style="text-align:right; font-weight:bold;">TOTAL DE ' . strtoupper($tituloReporte) . ': ' . count($datos) . '</p>';
+<p class='total'>
+    TOTAL DE " . strtoupper($tituloReporte) . ": " . count($datos) . "
+</p>
+";
+
 $mpdf->WriteHTML($html);
 $mpdf->Output('reporte_citas_' . $tipo . '.pdf', 'I');
 ?>
