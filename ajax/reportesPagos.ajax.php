@@ -48,7 +48,7 @@ switch ($tipo) {
 
             echo "<div class='col-12'>
                 <div class='alert alert-success text-center fw-bold'>
-                    TOTAL: " . number_format($total, 2) . " Bs
+                    TOTAL: " . number_format($total) . " Bs
                 </div>
               </div>";
         } else {

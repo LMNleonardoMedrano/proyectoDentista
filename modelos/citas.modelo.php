@@ -397,14 +397,13 @@ public static function mdlCitasCanceladas($desde = null, $hasta = null){
 
     // Citas por Odontólogo
     public static function mdlCitasPorOdontologo($desde = null, $hasta = null){
-    $sql = "SELECT 
-                u.nombre AS nombre_odontologo,
-                c.fecha AS fecha_cita,
-                c.estado
-            FROM citas c
-            JOIN usuarios u ON c.idUsuarios = u.idUsuarios
-            WHERE 1";
-
+   $sql = "SELECT 
+            CONCAT(u.nombre, ' ', u.apellido) AS nombre_odontologo,
+            c.fecha AS fecha_cita,
+            c.estado
+        FROM citas c
+        JOIN usuarios u ON c.idUsuarios = u.idUsuarios
+        WHERE 1";
     if($desde && $hasta){
         $sql .= " AND c.fecha BETWEEN :desde AND :hasta";
     }

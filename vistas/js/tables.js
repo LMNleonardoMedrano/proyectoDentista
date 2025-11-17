@@ -3,10 +3,35 @@ $(document).ready(function() {
     scrollX: true,         // Permite scroll horizontal
     responsive: false,     // Desactivamos responsive para evitar ocultar columnas
     select: true,
+    pageLength: 25, // 👈 Esta línea define que se muestren 25 registros por página
+    lengthMenu: [10, 25, 50, 100],
     columnDefs: [{
       targets: 'nosort',   // Aplica esta clase para columnas no ordenables si las tienes
       orderable: false
-    }]
+    }],
+    language: {
+      decimal: ",",
+      thousands: ".",
+      processing: "Procesando...",
+      search: "Buscar:",
+      lengthMenu: "Mostrar _MENU_ registros",
+      info: "Mostrando _START_ a _END_ de _TOTAL_ registros",
+      infoEmpty: "Mostrando 0 a 0 de 0 registros",
+      infoFiltered: "(filtrado de _MAX_ registros totales)",
+      loadingRecords: "Cargando...",
+      zeroRecords: "No se encontraron resultados",
+      emptyTable: "No hay datos disponibles en la tabla",
+      paginate: {
+        first: "Primero",
+        previous: "Anterior",
+        next: "Siguiente",
+        last: "Último"
+      },
+      aria: {
+        sortAscending: ": activar para ordenar ascendente",
+        sortDescending: ": activar para ordenar descendente"
+      }
+    }
   });
 
   $('#data_table tbody').on('click', 'tr', function() {

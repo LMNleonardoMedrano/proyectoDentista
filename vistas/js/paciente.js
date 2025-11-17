@@ -218,12 +218,18 @@ $(document).ready(function () {
   $(".menor").hide();
 });
 /*=============================================
-VER DATOS TUTOR EN MODAL
+VER DATOS TUTOR EN MODAL (ESTILO FICHA CLÍNICA)
 =============================================*/
 $(document).on("click", ".btnVerTutor", function () {
+
   var idPaciente = $(this).data("id");
 
-  $("#detalleTutor").html("<em>Cargando...</em>");
+  $("#detalleTutor").html(`
+    <div class="text-center p-3">
+      <div class="spinner-border text-primary" role="status"></div>
+      <p class="mt-2 text-muted">Cargando información del tutor...</p>
+    </div>
+  `);
 
   $.ajax({
     url: "ajax/paciente.ajax.php",
@@ -231,23 +237,65 @@ $(document).on("click", ".btnVerTutor", function () {
     data: { accion: "getTutor", idPaciente: idPaciente },
     dataType: "json",
     success: function (respuesta) {
+
       if (respuesta && Object.keys(respuesta).length > 0) {
+
         var html = `
-          <p><strong>Nombre:</strong> ${respuesta.nombrePT || "N/A"}</p>
-          <p><strong>Género:</strong> ${respuesta.generoPT || "N/A"}</p>
-          <p><strong>Ocupación:</strong> ${respuesta.ocupacion || "N/A"}</p>
-          <p><strong>Relación:</strong> ${respuesta.relacion || "N/A"}</p>
+          <div class="card shadow-sm border-0">
+
+            
+            <div class="card-body p-3">
+
+              <table class="table table-striped table-bordered" style="font-size: 15px;">
+
+                <tr>
+                  <th class="bg-light" style="width: 35%;">Nombre</th>
+                  <td>${respuesta.nombrePT || "N/A"}</td>
+                </tr>
+
+                <tr>
+                  <th class="bg-light">Género</th>
+                  <td>${respuesta.generoPT || "N/A"}</td>
+                </tr>
+
+                <tr>
+                  <th class="bg-light">Ocupación</th>
+                  <td>${respuesta.ocupacion || "N/A"}</td>
+                </tr>
+
+                <tr>
+                  <th class="bg-light">Relación</th>
+                  <td>${respuesta.relacion || "N/A"}</td>
+                </tr>
+
+              </table>
+
+            </div>
+
+          </div>
         `;
+
         $("#detalleTutor").html(html);
+
       } else {
-        $("#detalleTutor").html("<p>No hay datos del tutor.</p>");
+        $("#detalleTutor").html(`
+          <div class="alert alert-warning text-center">
+            No hay información del tutor disponible.
+          </div>
+        `);
       }
     },
+
     error: function () {
-      $("#detalleTutor").html("<p>Error al cargar datos del tutor.</p>");
+      $("#detalleTutor").html(`
+        <div class="alert alert-danger text-center">
+          Error al cargar los datos del tutor.
+        </div>
+      `);
     }
   });
 });
+
 document.addEventListener("DOMContentLoaded", function() {
     const pacientes = pacientesData; // ya vienen de PHP
     const totalPacientes = pacientes.length;

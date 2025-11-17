@@ -19,8 +19,38 @@ if (!$tipo) {
 $mpdf = new Mpdf();
 $mpdf->SetTitle('Reporte de Pagos - ' . ucfirst($tipo));
 
-$html = "<h2 style='text-align:center; font-family: Arial;'>REPORTE DE PAGOS</h2>
-<p style='text-align:center; font-family: Arial; font-size:12px;'>Desde: " . ($desde ?: '-') . " | Hasta: " . ($hasta ?: '-') . "</p><br>";
+// -------------------------
+// ESTILOS GLOBALES
+// -------------------------
+$stylesheet = "
+    body { font-family: Arial; font-size: 12px; }
+    .header-table { width: 100%; border-bottom: 2px solid #007BFF; margin-bottom: 10px; }
+    .header-table td { vertical-align: middle; }
+    .logo { width: 120px; height: auto; }
+    .header-title { text-align: center; font-size: 16px; font-weight: bold; color: #007BFF; }
+    .header-fechas { text-align: right; font-size: 11px; color: #555; }
+    table { width: 100%; border-collapse: collapse; margin-top: 15px; font-size: 12px; }
+    thead { background: #007BFF; color: white; }
+    th, td { border: 1px solid #ccc; padding: 7px; }
+    tbody tr:nth-child(even) { background: #f7f7f7; }
+";
+
+$mpdf->WriteHTML($stylesheet, 1);
+
+// -------------------------
+// ENCABEZADO CON LOGO, NOMBRE Y FECHAS
+// -------------------------
+$html = '
+<table class="header-table">
+    <tr>
+        <td><img src="../../vistas/src/img/logo7.5.png" class="logo" alt="Logo"></td>
+        <td class="header-title">CLINICA DENTAL DENTANI</td>
+        <td class="header-fechas">Desde: ' . ($desde ?: '-') . ' | Hasta: ' . ($hasta ?: '-') . '</td>
+    </tr>
+</table>
+
+<h2 style="text-align:center; color:#333;">REPORTE DE PAGOS</h2>
+';
 
 switch ($tipo) {
     case "totales":
