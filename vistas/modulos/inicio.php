@@ -92,7 +92,7 @@ $citas_hoy = ControladorInicio::ctrCitasHoy(); // Llama al controlador que trae 
                 <div class="ml-3 flex-1">
                   <div class="text-base font-medium text-gray-500">Ingresos Totales</div>
                   <div class="flex items-center mt-1">
-                    <div class="text-xl font-semibold text-gray-900">Bs. <?php echo number_format($stats_tratamientos['ingresos'], 2, ',', '.'); ?></div>
+                    <div class="text-xl font-semibold text-gray-900"> Bs. <?php echo number_format($stats_tratamientos['ingresos'], $stats_tratamientos['ingresos'] % 1 === 0 ? 0 : 2, ',', '.'); ?></div>
                     <div class="ml-2 text-xs font-semibold text-green-600">
                       <i class="fa fa-arrow-up mr-1"></i>+15%
                     </div>

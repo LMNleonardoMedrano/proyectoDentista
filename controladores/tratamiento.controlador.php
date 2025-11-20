@@ -178,43 +178,81 @@ GUARDAR NUEVOS MEDICAMENTOS (ACUMULANDO)
 
 
     /*=============================================
-    EDITAR TRATAMIENTO
-    =============================================*/
-    static public function ctrEditarTratamiento()
-    {
-        if (isset($_POST["editarIdTratamiento"])) {
-            $tabla = "tratamiento";
-            $idUsuario = $_SESSION["idUsuarios"];
+EDITAR TRATAMIENTO
+=============================================*/
+static public function ctrEditarTratamiento() {
+    if (isset($_POST["editarIdTratamiento"])) {
 
-            $datos = array(
-                "idTratamiento" => $_POST["editarIdTratamiento"],
-                "fechaRegistro" => $_POST["editarFechaRegistro"],
-                "saldo" => $_POST["editarSaldo"],
-                "totalPago" => $_POST["editarTotalPago"],
-                "estado" => $_POST["editarEstado"],
-                "estadoPago" => $_POST["editarEstadoPago"],
-                "idPaciente" => $_POST["editarIdPaciente"],
-                "idUsuarios" => $idUsuario
-            );
+        $tabla = "tratamiento";
 
-            $respuesta = ModeloTratamiento::mdlEditarTratamiento($tabla, $datos);
+        $datos = array(
+            "idTratamiento" => $_POST["editarIdTratamiento"],
+            "idPaciente" => $_POST["editarIdPaciente"],
+            "idUsuarios" => $_POST["editarIdUsuarios"],
+            "saldo" => $_POST["editarSaldo"],
+            "totalPago" => $_POST["editarTotalPago"],
+            "estado" => $_POST["editarEstado"],
+            "estadoPago" => $_POST["editarEstadoPago"]
+        );
 
-            if ($respuesta == "ok") {
-                echo '<script>
-                    swal({
-                        type: "success",
-                        title: "El tratamiento ha sido editado correctamente",
-                        showConfirmButton: true,
-                        confirmButtonText: "Cerrar"
-                    }).then(function(result){
-                        if(result.value){
-                            window.location = "tratamiento";
-                        }
-                    });
-                </script>';
-            }
+        $respuesta = ModeloTratamiento::mdlEditarTratamiento($tabla, $datos);
+
+        if ($respuesta == "ok") {
+            echo '<script>
+                swal({
+                    type: "success",
+                    title: "El tratamiento ha sido editado correctamente",
+                    showConfirmButton: true,
+                    confirmButtonText: "Cerrar"
+                }).then(function(result){
+                    if(result.value){
+                        window.location = "tratamiento";
+                    }
+                });
+            </script>';
+        } else {
+            echo '<script>
+                swal({
+                    type: "error",
+                    title: "¡Error al editar el tratamiento!",
+                    showConfirmButton: true,
+                    confirmButtonText: "Cerrar"
+                });
+            </script>';
         }
     }
+}
+    /*=============================================
+EDITAR MEDICAMENTOS DE TRATAMIENTO
+=============================================*/
+public function ctrEditarMedicamentos() {
+    if(isset($_POST["editarIdTratamientoMedicamentos"])) {
+        $idTratamiento = $_POST["editarIdTratamientoMedicamentos"];
+        $medicamentos = $_POST["medicamentos"]; // Array de medicamentos con dosis, fechas, tiempo, etc.
+        
+        $respuesta = ModeloTratamiento::mdlEditarMedicamentos($idTratamiento, $medicamentos);
+
+        if($respuesta == "ok") {
+            echo '<script>
+                swal({
+                    type: "success",
+                    title: "Medicamentos editados correctamente",
+                    showConfirmButton: true,
+                    confirmButtonText: "Cerrar"
+                }).then(function(result){
+                    if(result.value){
+                        window.location = "tratamientos";
+                    }
+                });
+            </script>';
+        }
+    }
+}
+// Mostrar medicamentos de un tratamiento
+static public function ctrMostrarMedicamentos($item, $valor){
+    $tabla = "detalleMedicamento"; // Cambia al nombre correcto si es otra tabla
+    return ModeloTratamiento::mdlMostrarMedicamentos($tabla, $item, $valor);
+}
 
     /*=============================================
     ELIMINAR TRATAMIENTO

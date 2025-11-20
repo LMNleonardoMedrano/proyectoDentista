@@ -8,6 +8,10 @@ class ControladorPaciente {
   static public function ctrMostrarPaciente($item, $valor) {
     return ModeloPaciente::mdlMostrarPaciente("pacientes", $item, $valor);
   }
+ public static function ctrMostrarPacientesSinCitas() {
+        // Llamar al modelo para obtener pacientes sin citas
+        return ModeloPaciente::mdlMostrarPacientesSinCitas();
+    }
 
   /*=============================================
   Crear Paciente (y tutor si menor)

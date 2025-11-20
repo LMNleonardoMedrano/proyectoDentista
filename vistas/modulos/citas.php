@@ -293,16 +293,17 @@ $coloresOdontologos = [2=>'#4caf50',3=>'#2196f3',4=>'#ff9800',6=>'#e91e63',7=>'#
                       <input type="text" id="buscarPaciente" class="form-control" placeholder="Escribe nombre o CI del paciente..." autocomplete="off" required>
                       <ul class="list-group" id="listaPacientes" style="max-height:200px; overflow-y:auto; position:absolute; width:100%; z-index:1000; display:none;">
                         <?php
-                        $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
-                        foreach ($pacientes as $paciente) {
-                          echo "
-                              <li class='list-group-item list-group-item-action'
-                                  data-id='{$paciente['idPaciente']}'
-                                  data-ci='{$paciente['ci']}'
-                                  data-nombre='{$paciente['nombre']}'>
-                                  {$paciente['nombre']} – CI: {$paciente['ci']}
-                              </li>";
-                        }
+                       $pacientes = ControladorPaciente::ctrMostrarPacientesSinCitas();
+foreach ($pacientes as $paciente) {
+    echo "
+        <li class='list-group-item list-group-item-action'
+            data-id='{$paciente['idPaciente']}'
+            data-ci='{$paciente['ci']}'
+            data-nombre='{$paciente['nombre']}'>
+            {$paciente['nombre']} – CI: {$paciente['ci']}
+        </li>";
+}
+
                         ?>
                       </ul>
                       <input type="hidden" name="pacienteCita" id="pacienteCita">

@@ -483,3 +483,26 @@ document.querySelectorAll('.btn-filter').forEach(btn => {
     console.log('Filtro aplicado:', filtro);
   });
 });
+/*=============================================
+ELIMINAR cita
+=============================================*/
+$(document).on("click", ".btnEliminarCita", function () {
+
+  var idCita = $(this).attr("idCita");
+
+  swal({
+    title: '¿Está seguro de borrar el citas?',
+    text: "¡Si no lo está, puede cancelar la acción!",
+    type: 'warning',
+    showCancelButton: true,
+    confirmButtonColor: '#3085d6',
+    cancelButtonColor: '#d33',
+    cancelButtonText: 'Cancelar',
+    confirmButtonText: 'Sí, borrar citas!'
+  }).then(function (result) {
+    if (result.value) {
+      window.location = "index.php?ruta=citas&idCita=" + idCita;
+    }
+  });
+
+});

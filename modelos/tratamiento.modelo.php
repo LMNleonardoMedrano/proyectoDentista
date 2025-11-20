@@ -167,33 +167,90 @@ self::mdlActualizarTotalesDesdeDetalle($datos['idTratamiento']);
         return $stmtUpdate->execute();
     }
 
-    /*=============================================
-    EDITAR TRATAMIENTO
-    =============================================*/
-    static public function mdlEditarTratamiento($tabla, $datos)
-    {
-        $stmt = Conexion::conectar()->prepare(
-            "UPDATE $tabla 
-             SET fechaRegistro = :fechaRegistro, saldo = :saldo, totalPago = :totalPago, estado = :estado, estadoPago = :estadoPago, idPaciente = :idPaciente, idUsuarios = :idUsuarios
-             WHERE idTratamiento = :idTratamiento"
-        );
+  /*=============================================
+EDITAR TRATAMIENTO
+=============================================*/
+static public function mdlEditarTratamiento($tabla, $datos) {
+    $stmt = Conexion::conectar()->prepare("UPDATE $tabla SET idPaciente = :idPaciente, idUsuarios = :idUsuarios, saldo = :saldo, totalPago = :totalPago, estado = :estado, estadoPago = :estadoPago WHERE idTratamiento = :idTratamiento");
 
-        $stmt->bindParam(":idTratamiento", $datos["idTratamiento"], PDO::PARAM_INT);
-        $stmt->bindParam(":fechaRegistro", $datos["fechaRegistro"], PDO::PARAM_STR);
-        $stmt->bindParam(":saldo", $datos["saldo"], PDO::PARAM_STR);
-        $stmt->bindParam(":totalPago", $datos["totalPago"], PDO::PARAM_STR);
-        $stmt->bindParam(":estado", $datos["estado"], PDO::PARAM_STR);
-        $stmt->bindParam(":estadoPago", $datos["estadoPago"], PDO::PARAM_STR);
-        $stmt->bindParam(":idPaciente", $datos["idPaciente"], PDO::PARAM_INT);
-        $stmt->bindParam(":idUsuarios", $datos["idUsuarios"], PDO::PARAM_INT);
+    $stmt->bindParam(":idTratamiento", $datos["idTratamiento"], PDO::PARAM_INT);
+    $stmt->bindParam(":idPaciente", $datos["idPaciente"], PDO::PARAM_INT);
+    $stmt->bindParam(":idUsuarios", $datos["idUsuarios"], PDO::PARAM_INT);
+    $stmt->bindParam(":saldo", $datos["saldo"], PDO::PARAM_STR);
+    $stmt->bindParam(":totalPago", $datos["totalPago"], PDO::PARAM_STR);
+    $stmt->bindParam(":estado", $datos["estado"], PDO::PARAM_STR);
+    $stmt->bindParam(":estadoPago", $datos["estadoPago"], PDO::PARAM_STR);
 
-        if ($stmt->execute()) {
-            return "ok";
-        } else {
-            return "error";
-        }
-        $stmt = null;
+    if ($stmt->execute()) {
+        return "ok";
+    } else {
+        return "error";
     }
+
+    $stmt = null;
+}
+// Traer medicamentos de un tratamiento
+static public function mdlMostrarMedicamentos($idTratamiento) {
+    $db = Conexion::conectar();
+
+    $stmt = $db->prepare("
+        SELECT dm.*, m.nombre 
+        FROM detallemedicamento dm
+        INNER JOIN medicamentos m ON dm.codMedicamento = m.codMedicamento
+        WHERE dm.idTratamiento = :idTratamiento
+    ");
+    $stmt->bindParam(":idTratamiento", $idTratamiento, PDO::PARAM_INT);
+    $stmt->execute();
+
+    return $stmt->fetchAll(PDO::FETCH_ASSOC);
+}
+
+static public function mdlEditarMedicamentos($idTratamiento, $medicamentos){
+    $db = Conexion::conectar();
+
+    // 1️⃣ Eliminar medicamentos antiguos
+    $stmt = $db->prepare("DELETE FROM detalleMedicamento WHERE idTratamiento = :idTratamiento");
+    $stmt->bindParam(":idTratamiento", $idTratamiento, PDO::PARAM_INT);
+    $stmt->execute();
+
+    // 2️⃣ Insertar los nuevos medicamentos
+    $stmt = $db->prepare("INSERT INTO detalleMedicamento 
+        (idTratamiento, codMedicamento, dosis, fechaInicio, fechaFinal, tiempo, observacion) 
+        VALUES (:idTratamiento, :codMedicamento, :dosis, :fechaInicio, :fechaFinal, :tiempo, :observacion)");
+
+    foreach($medicamentos as $med) {
+        $stmt->bindParam(":idTratamiento", $idTratamiento, PDO::PARAM_INT);
+        $stmt->bindParam(":codMedicamento", $med['codMedicamento'], PDO::PARAM_INT);
+        $stmt->bindParam(":dosis", $med['dosis'], PDO::PARAM_STR);
+        $stmt->bindParam(":fechaInicio", $med['fechaInicio'], PDO::PARAM_STR);
+        $stmt->bindParam(":fechaFinal", $med['fechaFinal'], PDO::PARAM_STR);
+        $stmt->bindParam(":tiempo", $med['tiempo'], PDO::PARAM_STR);
+        $stmt->bindParam(":observacion", $med['observacion'], PDO::PARAM_STR);
+        $stmt->execute();
+    }
+
+    $stmt->closeCursor();
+    $stmt = null;
+
+    return "ok";
+}
+
+/*=============================================
+MOSTRAR TRATAMIENTO
+=============================================*/
+static public function mdlMostrarTratamiento($tabla, $item, $valor) {
+    if ($item != null) {
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla WHERE $item = :$item");
+        $stmt->bindParam(":".$item, $valor, PDO::PARAM_INT);
+        $stmt->execute();
+        return $stmt->fetch(PDO::FETCH_ASSOC);
+    } else {
+        $stmt = Conexion::conectar()->prepare("SELECT * FROM $tabla");
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
+}
+
 
     /*=============================================
 BORRAR TRATAMIENTO (con eliminación de detalles)

@@ -80,12 +80,14 @@
                                             <td>
                                                 <div class="d-flex justify-content-center gap-2">
                                                     <?php if (tienePermiso('editarTratamiento')): ?>
-                                                    <button class="icon-btn text-primary btnEditarTratamiento"
-                                                        data-toggle="modal"
-                                                        data-target="#modalEditarTratamiento"
-                                                        title="Editar">
-                                                        <i class="fas fa-edit fa-lg"></i>
-                                                    </button>
+                                                   <button class="icon-btn text-primary btnEditarTratamiento"
+    data-toggle="modal"
+    data-target="#modalEditarTratamiento"
+    idTratamiento="<?= $t['idTratamiento'] ?>"
+    title="Editar">
+    <i class="fas fa-edit fa-lg"></i>
+</button>
+
                                                     <?php endif; ?>
 
                                                     <button class="icon-btn text-info btnMedicamentosServicios"
@@ -165,12 +167,13 @@
                                             <td>
                                                 <div class="d-flex justify-content-center gap-2">
                                                     <?php if (tienePermiso('editarTratamiento')): ?>
-                                                    <button class="icon-btn text-primary btnEditarTratamiento"
-                                                        data-toggle="modal"
-                                                        data-target="#modalEditarTratamiento"
-                                                        title="Editar">
-                                                        <i class="fas fa-edit fa-lg"></i>
-                                                    </button>
+                                                   <button class="icon-btn text-primary btnEditarMedicamento"
+        data-toggle="modal"
+        data-target="#modalMedicamentos"
+        idTratamiento="<?= $d['idTratamiento'] ?>" title="Editar">
+    <i class="fas fa-edit fa-lg"></i>
+</button>
+
                                                     <?php endif; ?>
 
                                                     <a href="vistas/modulos/reciboMedicamento.php?idTratamiento=<?= $d['idTratamiento'] ?>&token=<?= $token ?>"
@@ -473,91 +476,174 @@
                 </div>
 
 
+<!-- Modal Editar Medicamentos -->
+<div id="modalEditarMedicamentos" class="modal fade" tabindex="-1" role="dialog">
+    <div class="modal-dialog modal-lg" role="document">
+        <div class="modal-content">
+            <form method="post" id="formEditarMedicamentos">
 
-
-
-                <!-- Modal Editar Tratamiento -->
-                <div id="modalEditarTratamiento" class="modal fade" role="dialog">
-                    <div class="modal-dialog modal-lg">
-                        <div class="modal-content">
-                            <form method="post">
-                                <div class="modal-header" style="background:#50c878; color:white;">
-                                    <h5 class="modal-title w-100 text-center">Editar Tratamiento</h5>
-                                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
-                                </div>
-
-                                <div class="modal-body px-5">
-                                    <input type="hidden" name="editarIdTratamiento" id="editarIdTratamiento">
-
-                                    <div class="form-group">
-                                        <label>Paciente:</label>
-                                        <select class="form-control" name="editarIdPaciente" id="editarIdPaciente" required>
-                                            <?php
-                                            $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
-                                            foreach ($pacientes as $paciente) {
-                                                echo "<option value='{$paciente['idPaciente']}'>{$paciente['nombre']}</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Odontologo:</label>
-                                        <select class="form-control" name="editarIdUsuarios" id="editarIdUsuarios" required>
-                                            <?php
-                                            $usuarios = ControladorUsuarios::ctrMostrarUsuarios(null, null);
-                                            foreach ($usuarios as $usuario) {
-                                                echo "<option value='{$usuario['idUsuarios']}'>{$usuario['nombre']}</option>";
-                                            }
-                                            ?>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Saldo:</label>
-                                        <input type="number" step="0.01" class="form-control" name="editarSaldo" id="editarSaldo" required>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Total Pago:</label>
-                                        <input type="number" step="0.01" class="form-control" name="editarTotalPago" id="editarTotalPago" required>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Estado:</label>
-                                        <select class="form-control" name="editarEstado" id="editarEstado" required>
-                                            <option value="En proceso">En proceso</option>
-                                            <option value="Finalizado">Finalizado</option>
-                                        </select>
-                                    </div>
-
-                                    <div class="form-group">
-                                        <label>Estado Pago:</label>
-                                        <select class="form-control" name="editarEstadoPago" id="editarEstadoPago" required>
-                                            <option value="Pendiente">Pendiente</option>
-                                            <option value="Pagado">Pagado</option>
-                                        </select>
-                                    </div>
-                                </div>
-
-                                <div class="modal-footer d-flex justify-content-center">
-                                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
-                                    <button type="submit" class="btn btn-outline-success" style="background-color:#50c878; color:white;">Guardar Cambios</button>
-                                </div>
-                            </form>
-
-                            <?php
-                            $editarTratamiento = new ControladorTratamiento();
-                            $editarTratamiento->ctrEditarTratamiento();
-                            ?>
-                        </div>
-                    </div>
+                <div class="modal-header bg-info text-white">
+                    <h5 class="modal-title">Medicamentos del Tratamiento #<span id="ms_edit_id_title"></span></h5>
+                    <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
                 </div>
 
-                <?php
-                $eliminarTratamiento = new ControladorTratamiento();
-                $eliminarTratamiento->ctrEliminarTratamiento();
-                ?>
+                <input type="hidden" name="editarIdTratamientoMedicamentos" id="editarIdTratamientoMedicamentos">
+
+                <div class="modal-body">
+
+                    <!-- Sección Medicamentos -->
+                    <div class="card mb-3 border-primary">
+                        <div class="card-header bg-primary text-white py-1 px-2" style="font-size:0.8rem;">Editar Medicamento</div>
+                        <div class="card-body p-2">
+                            <div class="form-row align-items-center">
+                                <div class="col-md-3 mb-2">
+                                    <select class="form-control" id="editarSelectMedicamentoForm">
+                                        <option value="">-- Seleccione medicamento --</option>
+                                        <?php
+                                        $medicamentos = ControladorMedicamento::ctrMostrarMedicamentos(null, null);
+                                        foreach ($medicamentos as $m) {
+                                            echo "<option value='{$m['codMedicamento']}'>{$m['nombre']}</option>";
+                                        }
+                                        ?>
+                                    </select>
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <input type="text" class="form-control" id="editarDosisMedicamento" placeholder="Dosis">
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <input type="date" class="form-control" id="editarFechaInicioMedicamento">
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <input type="date" class="form-control" id="editarFechaFinalMedicamento">
+                                </div>
+                                <div class="col-md-2 mb-2">
+                                    <input type="text" class="form-control" id="editarTiempoMedicamento" placeholder="Tiempo">
+                                </div>
+                                <div class="col-md-1 mb-2">
+                                    <button type="button" class="btn btn-success btn-block btn-sm" id="btnEditarAgregarMedicamento">+</button>
+                                </div>
+                            </div>
+                            <div class="form-row">
+                                <div class="col-12">
+                                    <textarea class="form-control" id="editarObservacionMedicamento" rows="1" placeholder="Observación"></textarea>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Lista temporal Medicamentos -->
+                    <div class="card mb-2 border-secondary">
+                        <div class="card-header bg-secondary text-white py-1 px-2" style="font-size:0.8rem;">Medicamentos a guardar</div>
+                        <ul id="listaTemporalEditarMedicamentos" class="list-group list-group-flush p-2"></ul>
+                    </div>
+
+                </div>
+
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cerrar</button>
+                    <button type="submit" class="btn btn-primary">Guardar Cambios</button>
+                </div>
+            </form>
+
+            <?php
+            $editarMedicamentos = new ControladorTratamiento();
+            $editarMedicamentos->ctrEditarMedicamentos();
+            ?>
+
+        </div>
+    </div>
+</div>
+
+
+<!-- Modal Editar Tratamiento -->
+<div id="modalEditarTratamiento" class="modal fade" role="dialog">
+  <div class="modal-dialog modal-lg">
+    <div class="modal-content">
+      <form method="post">
+        <div class="modal-header" style="background:#50c878; color:white;">
+          <h5 class="modal-title w-100 text-center">Editar Tratamiento</h5>
+          <button type="button" class="close text-white" data-dismiss="modal">&times;</button>
+        </div>
+
+        <div class="modal-body px-5">
+
+          <input type="hidden" name="editarIdTratamiento" id="editarIdTratamiento">
+
+          <div class="form-group">
+            <label for="editarIdPaciente">Paciente:</label>
+            <select class="form-control" name="editarIdPaciente" id="editarIdPaciente" required>
+              <?php
+              $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
+              foreach ($pacientes as $paciente) {
+                  echo "<option value='{$paciente['idPaciente']}'>{$paciente['nombre']}</option>";
+              }
+              ?>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editarIdUsuarios">Odontólogo:</label>
+            <select class="form-control" name="editarIdUsuarios" id="editarIdUsuarios" required>
+              <?php
+              $usuarios = ControladorUsuarios::ctrMostrarUsuarios(null, null);
+              foreach ($usuarios as $usuario) {
+                  echo "<option value='{$usuario['idUsuarios']}'>{$usuario['nombre']}</option>";
+              }
+              ?>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editarSaldo">Saldo:</label>
+            <input type="number" step="0.01" class="form-control" name="editarSaldo" id="editarSaldo" required>
+          </div>
+
+          <div class="form-group">
+            <label for="editarTotalPago">Total Pago:</label>
+            <input type="number" step="0.01" class="form-control" name="editarTotalPago" id="editarTotalPago" required>
+          </div>
+
+          <div class="form-group">
+            <label for="editarEstado">Estado:</label>
+            <select class="form-control" name="editarEstado" id="editarEstado" required>
+                <option value="activo">Activo</option>
+                <option value="completado">Completado</option>
+                <option value="cancelado">Cancelado</option>
+            </select>
+          </div>
+
+          <div class="form-group">
+            <label for="editarEstadoPago">Estado Pago:</label>
+            <select class="form-control" name="editarEstadoPago" id="editarEstadoPago" required>
+              <option value="pendiente">Pendiente</option>
+              <option value="parcial">Parcial</option>
+              <option value="pagado">Pagado</option>
+            </select>
+          </div>
+
+        </div>
+
+        <div class="modal-footer d-flex justify-content-center">
+          <button type="button" class="btn btn-outline-secondary" data-dismiss="modal">Cancelar</button>
+          <button type="submit" class="btn btn-outline-success" style="background-color:#50c878; color:white;">Guardar Cambios</button>
+        </div>
+      </form>
+
+      <?php
+      $editarTratamiento = new ControladorTratamiento();
+      $editarTratamiento->ctrEditarTratamiento();
+      ?>
+    </div>
+  </div>
+</div>
+
+
+
+              
             </div>
         </div>
     </div>
+      <?php
+                $eliminarTratamiento = new ControladorTratamiento();
+                $eliminarTratamiento->ctrEliminarTratamiento();
+                ?>

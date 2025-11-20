@@ -22,7 +22,19 @@ static public function mdlMostrarPaciente($tabla, $item, $valor) {
 
   $stmt = null;
 }
+public static function mdlMostrarPacientesSinCitas() {
+        $pdo = Conexion::conectar();
 
+        $stmt = $pdo->prepare("
+            SELECT p.*
+            FROM pacientes p
+            LEFT JOIN citas c ON p.idPaciente = c.idPaciente
+            WHERE c.idCita IS NULL
+        ");
+        
+        $stmt->execute();
+        return $stmt->fetchAll(PDO::FETCH_ASSOC);
+    }
   /*=============================================
   Mostrar Tutor por paciente (si existe)
   =============================================*/

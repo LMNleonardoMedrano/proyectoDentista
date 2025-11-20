@@ -2,28 +2,76 @@
 EDITAR Y ELIMINAR TRATAMIENTO
 =============================================*/
 $(document).on("click", ".btnEditarTratamiento", function () {
-  var idTratamiento = $(this).attr("idTratamiento");
-  var datos = new FormData();
-  datos.append("idTratamiento", idTratamiento);
+    var idTratamiento = $(this).attr("idTratamiento");
+    console.log("ID enviado al AJAX:", idTratamiento); // depuración
 
-  $.ajax({
-    url: "ajax/tratamiento.ajax.php",
-    method: "POST",
-    data: datos,
-    cache: false,
-    contentType: false,
-    processData: false,
-    dataType: "json",
-    success: function (respuesta) {
-      $("#editarIdTratamiento").val(respuesta["idTratamiento"]);
-      $("#editarFechaRegistro").val(respuesta["fechaRegistro"]);
-      $("#editarSaldo").val(respuesta["saldo"]);
-      $("#editarTotalPago").val(respuesta["totalPago"]);
-      $("#editarEstado").val(respuesta["estado"]);
-      $("#editarEstadoPago").val(respuesta["estadoPago"]);
-      $("#editarIdPaciente").val(respuesta["idPaciente"]);
-    }
-  });
+    if (!idTratamiento) return;
+
+    var datos = new FormData();
+    datos.append("idTratamiento", idTratamiento);
+
+    $.ajax({
+        url: "ajax/tratamiento.ajax.php", // ajusta según tu estructura
+        method: "POST",
+        data: datos,
+        cache: false,
+        contentType: false,
+        processData: false,
+        dataType: "json",
+        success: function(respuesta) {
+    console.log(respuesta);
+
+    $("#editarIdTratamiento").val(respuesta["idTratamiento"]);
+    $("#editarIdPaciente").val(respuesta["idPaciente"]);
+    $("#editarIdUsuarios").val(respuesta["idUsuarios"]);
+    $("#editarSaldo").val(respuesta["saldo"]);
+    $("#editarTotalPago").val(respuesta["totalPago"]);
+
+    // Marcar el estado actual
+    $("#editarEstado").val(respuesta["estado"]);
+    $("#editarEstadoPago").val(respuesta["estadoPago"]);
+}
+
+    });
+});
+// ===============================
+// EDITAR MEDICAMENTOS DE UN TRATAMIENTO
+// ===============================
+$(document).on("click", ".btnEditarMedicamento", function() {
+    var idTratamiento = $(this).attr("idTratamiento"); // toma el ID del tratamiento
+    console.log("ID enviado al AJAX:", idTratamiento);
+
+    // Poner el ID en el input hidden del modal
+    $("#idTratamientoMedicamentos").val(idTratamiento);
+    $("#ms_id_title").text(idTratamiento);
+
+    var datos = new FormData();
+    datos.append("idTratamientoMedicamentos", idTratamiento);
+
+    $.ajax({
+        url: "ajax/tratamiento.ajax.php",
+        method: "POST",
+        data: datos,
+        cache: false,
+        contentType: false,
+        processData: false,
+        dataType: "json",
+        success: function(respuesta) {
+            console.log("Respuesta del AJAX:", respuesta);
+
+          // Vaciar la lista antes de agregar
+$("#listaTemporalMedicamentos").empty();
+
+respuesta.forEach(function(med) {
+    var li = `<li class="list-group-item d-flex justify-content-between align-items-center">
+        <span>${med.nombre} - Dosis: ${med.dosis} - ${med.fechaInicio} / ${med.fechaFinal} - ${med.tiempo}</span>
+        <button type="button" class="btn btn-sm btn-danger btnEliminarMedicamentoTemp">X</button>
+    </li>`;
+    $("#listaTemporalMedicamentos").append(li);
+});
+
+        }
+    });
 });
 
 $(document).on("click", ".btnEliminarTratamiento", function () {

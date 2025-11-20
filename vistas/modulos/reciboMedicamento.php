@@ -65,11 +65,13 @@ echo '
     }
     .header {
       display: flex;
-      justify-content: space-between;
       align-items: center;
       border-bottom: 1px dashed #ccc;
       padding-bottom: 10px;
       margin-bottom: 20px;
+    }
+    .header-left {
+      margin-right: 15px;
     }
     .header h1 {
       margin: 0;
@@ -107,7 +109,7 @@ echo '
       text-align: center;
       margin-top: 20px;
     }
-      .no-print {
+    .no-print {
       text-align: center;
       margin: 20px 0;
     }
@@ -133,11 +135,14 @@ echo '
   </div>
   <div class="recibo">
     <div class="header">
+      <div class="header-left">
+        <img src="/dentista/vistas/src/img/logo7.5.png" alt="Logo" style="width:120px; height:auto;">
+      </div>
       <div>
         <h1>Recibo de Medicamentos Recetados</h1>
         <p><strong>Impreso:</strong> ' . date("d/m/Y H:i") . '</p>
       </div>
-      <div style="text-align:right;">
+      <div style="margin-left:auto; text-align:right;">
         <p><strong>Paciente:</strong> ' . $medicamentos[0]["pacienteNombre"] . '</p>
         <p><strong>Doctor:</strong> Dr. ' . $medicamentos[0]["nombreDoctor"] . '</p>
       </div>
