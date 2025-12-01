@@ -23,19 +23,36 @@ if (!$resultado) {
     exit;
 }
 
-$nit = "123456789"; // NIT real
+// ---------------------------------------------
+//  OPCIÓN YAPE: MOSTRAR UNA IMAGEN ESTÁTICA
+// ---------------------------------------------
+if ($tipoApp === 'yape') {
+
+    // Ruta de tu imagen Yape (ajústala según tu proyecto)
+    $rutaImagenYape = '../img/QR/yape.jpeg';
+
+    if (file_exists($rutaImagenYape)) {
+        header('Content-Type: image/png');
+        readfile($rutaImagenYape);
+        exit;
+    } else {
+        header('Content-Type: image/png');
+        QRcode::png("Imagen Yape no encontrada");
+        exit;
+    }
+}
+
+// ---------------------------------------------
+//  SI NO ES YAPE → GENERAR QR NORMAL
+// ---------------------------------------------
+
+$nit = "123456789"; 
 $nombreComercio = "Clínica Dental Dentani";
 $concepto = "Tratamiento dental";
 $referencia = "Tratamiento #" . str_pad($idTratamiento, 5, "0", STR_PAD_LEFT);
 $montoFormateado = number_format(floatval($monto), 2, '.', '');
 
-if ($tipoApp === 'yape') {
-    // QR para Yape (el paciente escribe el monto manualmente)
-    $contenidoQR = "yape://pay?alias=dentani.bolivia"; // reemplazá con tu alias Yape real
-} else {
-    // QR bancario estándar
-    $contenidoQR = "$nit|$nombreComercio|$montoFormateado|$concepto: {$resultado['pacienteNombre']}|$referencia";
-}
+$contenidoQR = "$nit|$nombreComercio|$montoFormateado|$concepto: {$resultado['pacienteNombre']}|$referencia";
 
 header('Content-Type: image/png');
 QRcode::png($contenidoQR);

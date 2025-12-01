@@ -94,7 +94,9 @@
                                 </div>
                                 <div class="ml-2">
                                     <div class="font-weight-bold"><?php echo htmlspecialchars($value["nombre"]); ?></div>
-                                    <small class="text-muted"><?php echo htmlspecialchars($value["domicilio"]); ?></small>
+                                   <small style="color: #000; font-weight: 600;">
+    <?php echo htmlspecialchars($value["domicilio"]); ?>
+</small>
                                     <?php if ($esMenor === "Sí"): ?>
                                     <div><span class="badge badge-warning">Menor de edad</span></div>
                                     <?php endif; ?>

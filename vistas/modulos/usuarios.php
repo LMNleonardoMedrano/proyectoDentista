@@ -70,9 +70,12 @@
                                 </div>
                               <?php endif; ?>
                             </div>
-                            <div class="ml-2">
+                          <div class="ml-2">
                               <div><?php echo htmlspecialchars($value['usuario']); ?></div>
-                              <div class="text-muted small"><?php echo htmlspecialchars($value['correo']); ?></div>
+                              <div class="small" style="color: #000; font-weight: 600;">
+                                <?php echo htmlspecialchars($value['correo']); ?>
+                              </div>
+
                             </div>
                           </div>
                         </td>
@@ -80,8 +83,14 @@
                         <!-- Información Personal -->
                         <td>
                           <div><?php echo htmlspecialchars($value['nombre'] . ' ' . $value['apellido']); ?></div>
-                          <div class="text-muted small">CI: <?php echo htmlspecialchars($value['ci']); ?></div>
-                          <div class="text-muted small">Domicilio: <?php echo htmlspecialchars($value['domicilio']); ?></div>
+                          <div class="small" style="color: #000; font-weight: 600;">
+    CI: <?php echo htmlspecialchars($value['ci']); ?>
+</div>
+
+<div class="small" style="color: #000; font-weight: 600;">
+    Domicilio: <?php echo htmlspecialchars($value['domicilio']); ?>
+</div>
+
                         </td>
 
                         <!-- Perfil con color -->

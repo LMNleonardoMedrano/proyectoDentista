@@ -103,11 +103,7 @@ $coloresOdontologos = [2=>'#4caf50',3=>'#2196f3',4=>'#ff9800',6=>'#e91e63',7=>'#
 
         <!-- Exportar PDF -->
         <?php if (tienePermiso('listarCitas')): ?>
-        <div class="box-header with-border d-flex justify-content-between mb-3">
-            <a href='vistas/modulos/reportesCitas.php' class='btn btn-danger' target='_blank'>
-                <i class='fa fa-file-pdf-o'></i> Exportar PDF
-            </a>
-        </div>
+        
         <?php endif; ?>
 
         <!-- Nav Tabs -->
@@ -147,8 +143,16 @@ $coloresOdontologos = [2=>'#4caf50',3=>'#2196f3',4=>'#ff9800',6=>'#e91e63',7=>'#
                             <tr data-id="<?= $cita['idCita'] ?>" data-estado="<?= $cita['estado'] ?>">
                                 <td><?= $i+1 ?></td>
                                 <td>
-                                    <div><div style="color:#000; font-weight:bold;"><?= htmlspecialchars($cita['fecha']) ?></div>
-                                    <div style="font-size:0.9rem; color:#555;"><?= htmlspecialchars($cita['hora'].' - '.$cita['horaFin']) ?></div></div>
+                                    <div>
+    <div style="color: #000; font-weight: 700; font-size: 1rem;">
+        <?= htmlspecialchars($cita['fecha']) ?>
+    </div>
+
+    <div style="font-size: 0.9rem; color: #000; font-weight: 600;">
+        <?= htmlspecialchars($cita['hora'] . ' - ' . $cita['horaFin']) ?>
+    </div>
+</div>
+
                                 </td>
                                 <td><?= $cita["nombrePaciente"] ?></td>
                                 <td><span style="color:<?= $colorOdontologo ?>; font-weight:bold;"><?= $cita["nombreOdontologo"] ?></span></td>

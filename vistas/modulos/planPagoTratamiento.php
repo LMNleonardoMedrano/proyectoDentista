@@ -198,7 +198,7 @@
                     </div>
        <!-- Imagen del QR, inicialmente oculta -->
 <div id="contenedorQR" style="margin-top:10px; display:none; text-align:center;">
-  <img id="imagenQRPago" src="" alt="QR de pago" style="width:150px; height:150px; display:block; margin:0 auto;">
+  <img id="imagenQRPago" src="" alt="QR de pago" style="width:250px; height:250px; display:block; margin:0 auto;">
   <p style="font-size:12px; margin-top:8px;">Escaneá con tu app bancaria para pagar</p>
 </div>
 
@@ -242,25 +242,47 @@
                                 $serviciosTexto = implode(", ", $nombresServicios);
                               }
                               ?>
-                              <li class="list-group-item seleccionar-tratamiento"
-                                data-idtratamiento="<?= $tratamiento['idTratamiento'] ?>"
-                                data-monto="<?= $tratamiento['totalPago'] ?>"
-                                data-saldo="<?= $tratamiento['saldo'] ?>"
-                                data-ci="<?= $paciente['ci'] ?>"
-                                data-nombre="<?= strtolower($paciente['nombre']) ?>">
-                                <div class="d-flex justify-content-between w-100">
-                                  <div>
-                                    <strong>Paciente:</strong> <?= $paciente['nombre'] ?> <br>
-                                    <strong>CI:</strong> <?= $paciente['ci'] ?> <br>
-                                    <strong>Odontólogo:</strong> <?= $odontologo['nombre'] ?> <?= $odontologo['apellido'] ?> <br>
-                                    <strong>Servicios:</strong> <?= $serviciosTexto ?>
-                                  </div>
-                                  <div class="text-right">
-                                    <strong>Total:</strong> Bs. <?= number_format($tratamiento['totalPago'], 2) ?> <br>
-                                    <strong>Saldo:</strong> Bs. <?= number_format($tratamiento['saldo'], 2) ?>
-                                  </div>
-                                </div>
-                              </li>
+                              <li class="list-group-item seleccionar-tratamiento px-3 py-2"
+    data-idtratamiento="<?= $tratamiento['idTratamiento'] ?>"
+    data-monto="<?= $tratamiento['totalPago'] ?>"
+    data-saldo="<?= $tratamiento['saldo'] ?>"
+    data-ci="<?= $paciente['ci'] ?>"
+    data-nombre="<?= strtolower($paciente['nombre']) ?>"
+    style="background-color:#F8F9FA; color:#000000; border-radius:5px; margin-bottom:5px;">
+
+    <div class="d-flex justify-content-between w-100">
+        <!-- Columna izquierda: información del paciente -->
+        <div>
+            <div style="font-weight:bold; margin-bottom:3px;">
+                Paciente: <?= $paciente['nombre'] ?> | CI: <?= $paciente['ci'] ?>
+            </div>
+            <div style="font-size:0.85rem; margin-bottom:2px;">
+                <strong>Odontólogo:</strong> <?= $odontologo['nombre'] ?> <?= $odontologo['apellido'] ?>
+            </div>
+            <div style="font-size:0.85rem; margin-bottom:2px;">
+                <strong>Servicios:</strong>
+                <ul style="margin:2px 0 0 15px; padding:0; list-style-type:disc;">
+                    <?php
+                        if ($detalleServicios) {
+                            foreach ($detalleServicios as $ds) {
+                                $servicio = ModeloServicios::mdlMostrarServicios('servicios', 'idServicio', $ds['idServicio']);
+                                if ($servicio) {
+                                    echo "<li style='font-size:0.85rem;'>{$servicio['nombreServicio']} (Bs. ".number_format($ds['precio'],2).")</li>";
+                                }
+                            }
+                        }
+                    ?>
+                </ul>
+            </div>
+        </div>
+
+        <!-- Columna derecha: montos -->
+        <div class="text-right" style="font-size:0.85rem;">
+            <div><strong>Total:</strong> Bs. <?= number_format($tratamiento['totalPago'], 2) ?></div>
+            <div><strong>Saldo:</strong> Bs. <?= number_format($tratamiento['saldo'], 2) ?></div>
+        </div>
+    </div>
+</li>
                             <?php endif; ?>
                           <?php endforeach; ?>
                         </ul>

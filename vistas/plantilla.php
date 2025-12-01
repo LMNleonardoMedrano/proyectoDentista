@@ -59,53 +59,61 @@ if (!isset($_SESSION['permisos'])) {
   <link href="https://cdn.jsdelivr.net/npm/fullcalendar@5.11.3/main.min.css" rel="stylesheet" />
 
   <!-- Estilos personalizados para DataTables -->
-  <style>
-    /* Tu CSS personalizado aquí, sin cambios */
-    table.dataTable {
-      width: 100%;
-      border-collapse: collapse;
-      font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
-      font-size: 15px;
-      background-color: #ffffff;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-      border-radius: 12px;
-      overflow: hidden;
-    }
+ <style>
 
-    table.dataTable thead {
-      background-color: #e0f7fa;
-    }
+table.dataTable {
+  width: 100%;
+  border-collapse: collapse;
+  font-family: "Segoe UI", Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 15px;
+  background-color: #ffffff;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+  border-radius: 12px;
+  overflow: hidden;
+}
 
-    table.dataTable thead th {
-      padding: 12px 15px;
-      color: #00796b;
-      text-align: left;
-      border-bottom: 2px solid #b2dfdb;
-    }
+/* Encabezados */
+table.dataTable thead {
+  background-color: #e0f7fa;
+}
 
-    table.dataTable tbody td {
-      padding: 10px 15px;
-      color: #333;
-      border-bottom: 1px solid #f0f0f0;
-    }
+table.dataTable thead th {
+  padding: 12px 15px;
+  color: #000000 !important;      /* Letras más oscuras */
+  font-weight: 700;               /* Más grueso para mejor visibilidad */
+  text-align: left;
+  border-bottom: 2px solid #b2dfdb;
+}
 
-    table.dataTable tbody tr:hover {
-      background-color: rgb(217, 235, 235);
-    }
+/* Celdas del cuerpo */
+table.dataTable tbody td {
+  padding: 10px 15px;
+  color: #000000 !important;      /* Letras más negras */
+  font-weight: 500;               /* Más notorias */
+  border-bottom: 1px solid #f0f0f0;
+}
 
-    table.dataTable tbody tr.selected {
-      background-color: #b2ebf2 !important;
-    }
+/* Hover */
+table.dataTable tbody tr:hover {
+  background-color: rgba(201, 255, 255, 1);
+}
 
-    table.dataTable,
-    table.dataTable th,
-    table.dataTable td {
-      border: none !important;
-    }
+/* Fila seleccionada */
+table.dataTable tbody tr.selected {
+  background-color: #b2f2f2ff !important;
+}
 
-    table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before {
-      background-color: #4dd0e1;
-    }
+table.dataTable,
+table.dataTable th,
+table.dataTable td {
+  border: none !important;
+}
+
+/* Icono de responsive */
+table.dataTable.dtr-inline.collapsed>tbody>tr>td:first-child:before {
+  background-color: #4dd0e1;
+}
+
   </style>
 
   <style>

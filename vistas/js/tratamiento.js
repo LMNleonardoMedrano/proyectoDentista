@@ -303,8 +303,14 @@ $(document).on("click", ".seleccionar-cita", function () {
     let idPaciente = $(this).data("idpaciente");
     let idUsuario = $(this).data("idusuario");
 
-    $(".seleccionar-cita").removeClass("active bg-success text-white");
-    $(this).addClass("active bg-success text-white");
+    $(".seleccionar-cita").removeClass("active bg-success text-white")
+    .css({ "background-color": "", "color": "" }); // quitar estilos previos
+
+$(this).addClass("active") // mantenemos la clase active
+       .css({
+           "background-color": "#befafaff", // verde suave
+           "color": "#000000"             // texto negro
+       });
 
     $("select[name='nuevoIdPaciente']").val(idPaciente);
     $("select[name='nuevoIdUsuarios']").val(idUsuario);
@@ -336,13 +342,18 @@ $(document).on("click", ".seleccionar-cita", function () {
     });
 });
 
-// Filtrar citas por CI
+// Filtrar citas por CI o nombre
 document.getElementById('buscarCICitas').addEventListener('input', function() {
-  let ci = this.value.trim();
-  let lista = document.querySelectorAll('#listaCitasConfirmadas li');
-  lista.forEach(item => {
-    item.style.display = item.dataset.ci.includes(ci) ? '' : 'none';
-  });
+    let valor = this.value.trim().toLowerCase();
+    let lista = document.querySelectorAll('#listaCitasConfirmadas li');
+
+    lista.forEach(item => {
+        let ci = item.dataset.ci.toLowerCase();
+        let nombre = item.dataset.nombre.toLowerCase();
+
+        // Mostrar si coincide con CI o con nombre
+        item.style.display = (ci.includes(valor) || nombre.includes(valor)) ? '' : 'none';
+    });
 });
 
 // JS para agregar servicios ====================== -->

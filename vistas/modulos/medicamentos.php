@@ -80,13 +80,12 @@
                         </td>
 
                         <!-- Frecuencia -->
-                        <td>
-                            <div class="d-flex align-items-center text-muted">
-                                <i class="fas fa-clock mr-2"></i>
-                                <?= htmlspecialchars($value['tiempo'] ?: 'N/A') ?>
-                            </div>
-                        </td>
-
+                       <td>
+    <div class="d-flex align-items-center text-dark">
+        <i class="fas fa-clock mr-2"></i>
+        <?= htmlspecialchars($value['tiempo'] ?: 'N/A') ?>
+    </div>
+</td>
                         <!-- Acciones -->
                         <td>
                             <div class="d-flex">

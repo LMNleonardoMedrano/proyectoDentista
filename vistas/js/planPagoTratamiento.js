@@ -124,8 +124,14 @@ $(document).on("click", ".seleccionar-tratamiento", function(){
   $("#montoPlan").attr("max", saldoTratamiento); // Limita el máximo permitido
 
   // Resaltar tratamiento seleccionado
-  $(".seleccionar-tratamiento").removeClass("active bg-success text-white");
-  $(this).addClass("active bg-success text-white");
+ $(".seleccionar-tratamiento").removeClass("active bg-success text-white")
+    .css({ "background-color": "", "color": "" }); // quitar estilos previos
+
+$(this).addClass("active") // mantenemos la clase active
+       .css({
+           "background-color": "#befafaff", // verde suave
+           "color": "#000000"             // texto negro
+       });
 
   // Verificar tipo de pago
   let tipoPagoTexto = $("#nuevoTipoPago option:selected").text().trim().toLowerCase();
@@ -168,25 +174,26 @@ $("#montoPlan, #nuevoTipoPago").on("input change", function () {
 });
 
   // 🔹 Filtrar por CI (tu código existente)
+// 🔹 Filtrar por CI o nombre
 document.getElementById('buscarCI').addEventListener('input', function() {
-  let filtro = this.value.trim().toLowerCase();
+    let filtro = this.value.trim().toLowerCase();
 
-  // 🔍 Filtrar lista de tratamientos disponibles
-  let lista = document.querySelectorAll('#listaTratamientosDisponibles li');
-  lista.forEach(item => {
-    let ci = item.dataset.ci?.toLowerCase() || '';
-    let nombre = item.dataset.nombre?.toLowerCase() || '';
-    item.style.display = (ci.includes(filtro) || nombre.includes(filtro)) ? '' : 'none';
-  });
+    // 🔍 Filtrar lista de tratamientos disponibles
+    let lista = document.querySelectorAll('#listaTratamientosDisponibles li');
+    lista.forEach(item => {
+        let ci = item.dataset.ci?.toLowerCase() || '';
+        let nombre = item.dataset.nombre?.toLowerCase() || '';
+        item.style.display = (ci.includes(filtro) || nombre.includes(filtro)) ? '' : 'none';
+    });
 
-  // 🔍 Filtrar opciones del select de tratamiento
-  let select = document.getElementById('nuevoTratamiento');
-  for (let i = 0; i < select.options.length; i++) {
-    let option = select.options[i];
-    let ci = option.dataset.ci?.toLowerCase() || '';
-    let nombre = option.dataset.nombre?.toLowerCase() || '';
-    option.style.display = (filtro === "" || ci.includes(filtro) || nombre.includes(filtro)) ? '' : 'none';
-  }
+    // 🔍 Filtrar opciones del select de tratamiento
+    let select = document.getElementById('nuevoTratamiento');
+    for (let i = 0; i < select.options.length; i++) {
+        let option = select.options[i];
+        let ci = option.dataset.ci?.toLowerCase() || '';
+        let nombre = option.dataset.nombre?.toLowerCase() || '';
+        option.style.display = (filtro === "" || ci.includes(filtro) || nombre.includes(filtro)) ? '' : 'none';
+    }
 });
 /*=============================================
 VALIDAR QUE EL MONTO NO EXCEDA EL SALDO DEL TRATAMIENTO

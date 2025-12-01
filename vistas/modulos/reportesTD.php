@@ -22,31 +22,51 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
       <div class="content-wrapper">
         <section class="content">
 
-          <!-- ===================== -->
-          <!-- NAV TABS PRINCIPALES -->
-          <!-- ===================== -->
-          <ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
-            <li class="nav-item">
-              <a class="nav-link active" id="citas-tab" data-toggle="tab" href="#citas" role="tab">
-                <i class="fa fa-calendar-check-o"></i> Citas
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="tratamientos-tab" data-toggle="tab" href="#tratamientos" role="tab">
-                Tratamientos
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="pagos-tab" data-toggle="tab" href="#pagos" role="tab">
-                Pagos
-              </a>
-            </li>
-            <li class="nav-item">
-              <a class="nav-link" id="historial-tab" data-toggle="tab" href="#historial" role="tab">
-                <i class="fa fa-file-text-o"></i> Historial Clínico
-              </a>
-            </li>
-          </ul>
+         <!-- ===================== -->
+<!-- NAV TABS PRINCIPALES CON PERMISOS -->
+<!-- ===================== -->
+<ul class="nav nav-tabs mb-4" id="reportTabs" role="tablist">
+
+    <!-- TAB CITAS -->
+    <?php if (tienePermiso('verCitas')): ?>
+    <li class="nav-item">
+      <a class="nav-link active" id="citas-tab" data-toggle="tab" href="#citas" role="tab">
+        <i class="fa fa-calendar-check-o"></i> Citas
+      </a>
+    </li>
+    <?php endif; ?>
+
+    <!-- TAB TRATAMIENTOS -->
+    <?php if (tienePermiso('verTratamientos')): ?>
+    <li class="nav-item">
+      <a class="nav-link <?php echo !tienePermiso('verCitas') ? 'active' : ''; ?>" 
+         id="tratamientos-tab" data-toggle="tab" href="#tratamientos" role="tab">
+        Tratamientos
+      </a>
+    </li>
+    <?php endif; ?>
+
+    <!-- TAB PAGOS -->
+    <?php if (tienePermiso('verPagos')): ?>
+    <li class="nav-item">
+      <a class="nav-link <?php echo (!tienePermiso('verCitas') && !tienePermiso('verTratamientos')) ? 'active' : ''; ?>" 
+         id="pagos-tab" data-toggle="tab" href="#pagos" role="tab">
+        Pagos
+      </a>
+    </li>
+    <?php endif; ?>
+
+    <!-- TAB HISTORIAL CLÍNICO -->
+    <?php if (tienePermiso('verHistorialClinico')): ?>
+    <li class="nav-item">
+      <a class="nav-link <?php echo (!tienePermiso('verCitas') && !tienePermiso('verTratamientos') && !tienePermiso('verPagos')) ? 'active' : ''; ?>" 
+         id="historial-tab" data-toggle="tab" href="#historial" role="tab">
+        <i class="fa fa-file-text-o"></i> Historial Clínico
+      </a>
+    </li>
+    <?php endif; ?>
+
+</ul>
 
           <!-- ===================== -->
           <!-- CONTENIDO DE TABS -->
@@ -56,6 +76,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
           <!-- ===================== -->
 <!-- TAB CITAS -->
 <!-- ===================== -->
+<?php if (tienePermiso('verCitas')): ?>
 <div class="tab-pane fade show active" id="citas" role="tabpanel">
   <h2 class="text-center mb-4">Reporte de Citas</h2>
 
@@ -115,7 +136,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
     </div>
   </div>
 </div>
-
+<?php endif; ?>
             <script>
               document.getElementById('btnExportarPDF').addEventListener('click', function(e) {
                 e.preventDefault();
@@ -137,6 +158,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
           <!-- ===================== -->
 <!-- TAB TRATAMIENTOS -->
 <!-- ===================== -->
+<?php if (tienePermiso('verTratamientos')): ?>
 <div class="tab-pane fade" id="tratamientos" role="tabpanel">
   <h2 class="text-center mb-4">Reporte de Tratamientos</h2>
 
@@ -199,7 +221,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
     </div>
   </div>
 </div>
-
+<?php endif; ?>
             <script>
               document.getElementById('btnExportarTratamientosPDF').addEventListener('click', function(e) {
                 e.preventDefault();
@@ -221,6 +243,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
             <!-- ===================== -->
 <!-- TAB PAGOS -->
 <!-- ===================== -->
+<?php if (tienePermiso('verPagos')): ?>
 <div class="tab-pane fade" id="pagos" role="tabpanel">
   <h2 class="text-center mb-4">Reporte de Pagos</h2>
 
@@ -286,7 +309,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
     </div>
   </div>
 </div>
-
+<?php endif; ?>
             <script>
               document.getElementById('btnExportarPDFPagos').addEventListener('click', function(e) {
                 e.preventDefault();
@@ -307,6 +330,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
 <!-- ===================== -->
 <!-- TAB HISTORIAL CLÍNICO -->
 <!-- ===================== -->
+<?php if (tienePermiso('verHistorialClinico')): ?>
 <div class="tab-pane fade" id="historial" role="tabpanel">
   <h2 class="text-center mb-4">Historial Clínico del Paciente</h2>
 
@@ -339,7 +363,7 @@ $pacientes = ControladorPaciente::ctrMostrarPaciente(null, null);
     </div>
   </div>
 </div>
-
+<?php endif; ?>
 <script>
 const inputBusqueda = document.getElementById('buscarHistorial');
 const contenedorSugerencias = document.createElement('div');

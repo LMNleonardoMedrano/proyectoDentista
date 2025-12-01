@@ -360,17 +360,27 @@
                                                                 $odontologo = ControladorUsuarios::ctrMostrarUsuarios("idUsuarios", $cita['idUsuarios']);
 
                                                                 echo "
-            <li class='list-group-item px-2 py-1 seleccionar-cita'  
-                data-idpaciente='{$paciente['idPaciente']}'  
-                data-idusuario='{$odontologo['idUsuarios']}'  
-                data-idcita='{$cita['idCita']}'
-                data-ci='{$paciente['ci']}'>
-                
-                <strong>ID {$paciente['idPaciente']} – {$paciente['nombre']}  CI:</strong> {$paciente['ci']}</strong><br>
-                <span style='font-size:0.85rem;'>🦷 Odontólogo: {$odontologo['nombre']} {$odontologo['apellido']}</span><br>
-                <span style='font-size:0.85rem;'>Motivo: {$cita['motivoConsulta']}</span><br>
-                <span style='font-size:0.85rem;'>Fecha: {$cita['fecha']} - Hora: {$cita['hora']} - HoraFin: {$cita['horaFin']}</span>
-            </li>
+            <li class='list-group-item seleccionar-cita px-3 py-2'  
+    data-idpaciente='{$paciente['idPaciente']}'  
+    data-idusuario='{$odontologo['idUsuarios']}'  
+    data-idcita='{$cita['idCita']}'
+    data-ci='{$paciente['ci']}'
+    data-nombre='{$paciente['nombre']}'
+    style='background-color:#F8F9FA; color:#000000; border-radius:5px; margin-bottom:5px;'>
+
+    <div style='font-size:0.9rem; font-weight:bold; margin-bottom:3px;'>
+        ID {$paciente['idPaciente']} – {$paciente['nombre']} | CI: {$paciente['ci']}
+    </div>
+    <div style='font-size:0.85rem; margin-bottom:2px;'>
+        Odontólogo: {$odontologo['nombre']} {$odontologo['apellido']}
+    </div>
+    <div style='font-size:0.85rem; margin-bottom:2px;'>
+        Motivo: {$cita['motivoConsulta']}
+    </div>
+    <div style='font-size:0.85rem; color:#555;'>
+        Fecha: {$cita['fecha']} | Hora: {$cita['hora']} - {$cita['horaFin']}
+    </div>
+</li>
             ";
                                                             }
                                                         }
